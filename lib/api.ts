@@ -1,6 +1,10 @@
 import config from './config';
 
 function normalizeBaseUrl(url: string): string {
+  // Allow empty string for production (Vercel serverless functions)
+  if (url === '') {
+    return '';
+  }
   if (!url) {
     throw new Error('API base URL is not configured. Set NEXT_PUBLIC_API_BASE_URL.');
   }
