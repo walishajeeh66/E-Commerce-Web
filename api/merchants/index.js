@@ -1,4 +1,4 @@
-// Vercel serverless function for categories API
+// Vercel serverless function for merchants API
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -21,19 +21,19 @@ module.exports = async function handler(req, res) {
   try {
     switch (req.method) {
       case 'GET':
-        const categories = await prisma.category.findMany({
+        const merchants = await prisma.merchant.findMany({
           include: {
             products: true
           }
         });
-        res.json(categories);
+        res.json(merchants);
         break;
 
       case 'POST':
-        const newCategory = await prisma.category.create({
+        const newMerchant = await prisma.merchant.create({
           data: req.body
         });
-        res.status(201).json(newCategory);
+        res.status(201).json(newMerchant);
         break;
 
       default:
@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
-    console.error('Categories API Error:', error);
+    console.error('Merchants API Error:', error);
     res.status(500).json({ error: error.message });
   } finally {
     await prisma.$disconnect();

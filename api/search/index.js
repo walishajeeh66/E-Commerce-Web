@@ -1,4 +1,4 @@
-// Vercel serverless function for health check
+// Vercel serverless function for search API
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
@@ -25,23 +25,37 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    const { q: query } = req.query;
     
-    res.status(200).json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-      database: 'Connected',
-      environment: process.env.NODE_ENV || 'development'
+    if (!query) {
+      return res.status(400).json({ error: 'Query parameter is required' });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [
+          {
+            title: {
+              contains: query
+            }
+          },
+          {
+            description: {
+              contains: query
+            }
+          }
+        ]
+      },
+      include: {
+        category: true,
+        merchant: true
+      }
     });
+
+    res.json(products);
   } catch (error) {
-    console.error('Health check error:', error);
-    res.status(500).json({
-      status: 'ERROR',
-      timestamp: new Date().toISOString(),
-      database: 'Disconnected',
-      error: error.message
-    });
+    console.error('Search API Error:', error);
+    res.status(500).json({ error: error.message });
   } finally {
     await prisma.$disconnect();
   }
