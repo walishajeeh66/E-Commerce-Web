@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <h1>Wali E-commerce - Electronic Zone</h1>
 
 <p><b>Wali E-commerce</b> is a <b>modern eCommerce platform</b> developed using Next.js, Node.js and PostgreSQL. The application is completely built from scratch with custom design and is fully responsive.
@@ -253,3 +254,6 @@ NODE_ENV=production
 <h3>Admin dashboard - All users page</h3>
 
 ![electronic-zone admin users page](https://github.com/Kuzma02/Electronics-eCommerce-Shop-With-Admin-Dashboard-NextJS-NodeJS/assets/138793624/e14e8f2c-4377-42fd-b89b-d4868cc11b11)
+=======
+# E-Commerce-Web
+>>>>>>> c0880475017af17b089fb8eb7a60cc76601db574
