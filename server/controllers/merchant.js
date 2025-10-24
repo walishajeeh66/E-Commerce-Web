@@ -4,11 +4,13 @@ const prisma = new PrismaClient();
 async function getAllMerchants(request, response) {
   try {
     const merchants = await prisma.merchant.findMany({
-      include: {
-        products: true,
-      },
+      include: { product: true },
     });
-    return response.json(merchants);
+    const normalized = merchants.map(m => ({
+      ...m,
+      products: Array.isArray(m.products) ? m.products : (Array.isArray(m.product) ? m.product : []),
+    }));
+    return response.json(normalized);
   } catch (error) {
     console.error("Error fetching merchants:", error);
     return response.status(500).json({ error: "Error fetching merchants" });
@@ -23,7 +25,7 @@ async function getMerchantById(request, response) {
         id: id,
       },
       include: {
-        products: true,
+        product: true,
       },
     });
 
@@ -93,10 +95,10 @@ async function deleteMerchant(request, response) {
     // Check if merchant has products before deletion
     const merchant = await prisma.merchant.findUnique({
       where: { id },
-      include: { products: true },
+      include: { product: true },
     });
 
-    if (merchant?.products.length > 0) {
+    if (merchant?.product.length > 0) {
       return response.status(400).json({
         error: "Cannot delete merchant with existing products",
       });

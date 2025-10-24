@@ -8,6 +8,7 @@ import {
 } from "@/components";
 import apiClient from "@/lib/api";
 import Image from "next/image";
+import ProductGallery from "@/components/ProductGallery";
 import { notFound } from "next/navigation";
 import React from "react";
 import { FaSquareFacebook } from "react-icons/fa6";
@@ -35,7 +36,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
 
   // sending API request for more than 1 product image if it exists
   const imagesData = await apiClient.get(
-    `/api/images/${paramsAwaited?.id}`
+    `/api/images/${product?.id}`
   );
   const images = await imagesData.json();
 
@@ -45,92 +46,39 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
 
   return (
     <div className="bg-white">
-      <div className="max-w-screen-2xl mx-auto">
-        <div className="flex justify-center gap-x-16 pt-10 max-lg:flex-col items-center gap-y-5 px-5">
-          <div>
-            <Image
-              src={product?.mainImage ? `/${product?.mainImage}` : "/product_placeholder.jpg"}
-              width={500}
-              height={500}
-              alt="main image"
-              className="w-auto h-auto"
-            />
-            <div className="flex justify-around mt-5 flex-wrap gap-y-1 max-[500px]:justify-center max-[500px]:gap-x-1">
-              {images?.map((imageItem: ImageItem, key: number) => (
-                <Image
-                  key={imageItem.imageID + key}
-                  src={`/${imageItem.image}`}
-                  width={100}
-                  height={100}
-                  alt="laptop image"
-                  className="w-auto h-auto"
-                />
-              ))}
-            </div>
+      <div className="max-w-screen-2xl mx-auto px-5 py-10">
+        <div className="grid grid-cols-2 gap-10 items-start max-lg:grid-cols-1">
+          <div className="flex flex-col items-center">
+            <ProductGallery mainImage={product?.mainImage} images={images || []} />
           </div>
-          <div className="flex flex-col gap-y-7 text-black max-[500px]:text-center">
-            <SingleProductRating rating={product?.rating} />
-            <h1 className="text-3xl">{sanitize(product?.title)}</h1>
-            <p className="text-xl font-semibold">${product?.price}</p>
+          <div className="flex flex-col gap-4 text-black">
+            <h1 className="text-2xl font-semibold">{sanitize(product?.title)}</h1>
+            <div className="flex items-center gap-3">
+              <SingleProductRating rating={product?.rating} />
+              <span className="text-sm text-green-600">{product?.inStock ? "In stock" : "Out of stock"}</span>
+            </div>
+            {(() => {
+              const dp = (product as any)?.discountedPrice;
+              const hasDiscount = typeof dp === 'number' && dp > 0 && dp < product.price;
+              const oldPrice = hasDiscount ? product.price : Math.round(product.price * 1.15);
+              const currentPrice = hasDiscount ? dp : product.price;
+              const discountPercent = hasDiscount ? Math.max(0, Math.round(((oldPrice - currentPrice) / oldPrice) * 100)) : 0;
+              return (
+                <div className="flex items-center gap-3">
+                  <span className="text-xl font-bold text-blue-700">PKR {currentPrice}</span>
+                  {hasDiscount && (
+                    <>
+                      <span className="text-sm text-gray-500 line-through">PKR {oldPrice}</span>
+                      <span className="text-xs font-semibold text-white px-2 py-1 rounded" style={{backgroundColor:'#1E396E'}}>-{discountPercent}%</span>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
             <StockAvailabillity stock={94} inStock={product?.inStock} />
             <SingleProductDynamicFields product={product} />
-            <div className="flex flex-col gap-y-2 max-[500px]:items-center">
+            <div className="flex gap-3 mt-2 flex-wrap">
               <AddToWishlistBtn product={product} slug={paramsAwaited.productSlug} />
-              <p className="text-lg">
-                SKU: <span className="ml-1">abccd-18</span>
-              </p>
-              <div className="text-lg flex gap-x-2">
-                <span>Share:</span>
-                <div className="flex items-center gap-x-1 text-2xl">
-                  <FaSquareFacebook />
-                  <FaSquareXTwitter />
-                  <FaSquarePinterest />
-                </div>
-              </div>
-              <div className="flex gap-x-2">
-                <Image
-                  src="/visa.svg"
-                  width={50}
-                  height={50}
-                  alt="visa icon"
-                  className="w-auto h-auto"
-                />
-                <Image
-                  src="/mastercard.svg"
-                  width={50}
-                  height={50}
-                  alt="mastercard icon"
-                  className="h-auto w-auto"
-                />
-                <Image
-                  src="/ae.svg"
-                  width={50}
-                  height={50}
-                  alt="americal express icon"
-                  className="h-auto w-auto"
-                />
-                <Image
-                  src="/paypal.svg"
-                  width={50}
-                  height={50}
-                  alt="paypal icon"
-                  className="w-auto h-auto"
-                />
-                <Image
-                  src="/dinersclub.svg"
-                  width={50}
-                  height={50}
-                  alt="diners club icon"
-                  className="h-auto w-auto"
-                />
-                <Image
-                  src="/discover.svg"
-                  width={50}
-                  height={50}
-                  alt="discover icon"
-                  className="h-auto w-auto"
-                />
-              </div>
             </div>
           </div>
         </div>

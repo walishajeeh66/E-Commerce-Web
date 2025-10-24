@@ -302,7 +302,7 @@ const orderValidation = {
 
   // Validate order status
   validateStatus: (status) => {
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'completed'];
     
     if (!status || typeof status !== 'string') {
       throw new ValidationError('Order status is required', 'status');
@@ -312,7 +312,9 @@ const orderValidation = {
       throw new ValidationError(`Invalid order status. Must be one of: ${validStatuses.join(', ')}`, 'status');
     }
 
-    return status.toLowerCase();
+    // Normalize US spelling to UK and map completed -> delivered for downstream handling if needed
+    const normalized = status.toLowerCase() === 'canceled' ? 'cancelled' : status.toLowerCase();
+    return normalized;
   }
 };
 

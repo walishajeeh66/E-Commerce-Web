@@ -12,6 +12,7 @@ const demoProducts = [
     mainImage: "product1.webp",
     slug: "smart-phone-demo",
     manufacturer: "Samsung",
+    // category will be resolved to categoryId at insert time
     category: "smart-phones",
     inStock: 0,
   },
@@ -186,68 +187,78 @@ const demoProductImages = [
 
 
 const demoCategories = [
-  {
-    name: "speakers",
-  },
-  {
-    name: "trimmers",
-  },
-  {
-    name: "laptops",
-  },
-  {
-    name: "watches",
-  },
-  {
-    name: "headphones",
-  },
-  {
-    name: "juicers",
-  },
-  {
-    name: "speakers",
-  },
-  {
-    name: "earbuds",
-  },
-  {
-    name: "tablet-keyboards",
-  },
-  {
-    name: "phone-gimbals",
-  },
-  {
-    name: "mixer-grinders",
-  },
-  {
-    name: "cameras",
-  },
-  {
-    name: "smart-phones",
-  },
+  { name: "speakers" },
+  { name: "trimmers" },
+  { name: "laptops" },
+  { name: "watches" },
+  { name: "headphones" },
+  { name: "juicers" },
+  { name: "earbuds" },
+  { name: "tablet-keyboards" },
+  { name: "phone-gimbals" },
+  { name: "mixer-grinders" },
+  { name: "cameras" },
+  { name: "smart-phones" },
 ];
 
 async function insertDemoData() {
+  // 1) Create categories (unique by name)
+  const uniqueCategoryNames = Array.from(new Set(demoCategories.map((c) => c.name)));
+  const categoryNameToId = {};
+  for (const name of uniqueCategoryNames) {
+    const category = await prisma.category.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+    categoryNameToId[name] = category.id;
+  }
+  console.log("Demo categories inserted successfully!");
+
+  // 2) Create a default merchant
+  const defaultMerchant = await prisma.merchant.create({
+    data: {
+      name: "Default Merchant",
+      description: "Auto-created for demo data",
+      email: "merchant@example.com",
+      phone: "+1-000-000-0000",
+      address: "Demo Address",
+      status: "ACTIVE",
+    },
+  });
+  console.log("Default merchant created!", defaultMerchant.id);
+
+  // 3) Create products (connect categoryId and merchantId)
   for (const product of demoProducts) {
+    const categoryId = categoryNameToId[product.category];
+    if (!categoryId) {
+      throw new Error(`Category not found for product ${product.title}: ${product.category}`);
+    }
     await prisma.product.create({
-      data: product,
+      data: {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        rating: product.rating,
+        description: product.description,
+        mainImage: product.mainImage,
+        slug: product.slug,
+        manufacturer: product.manufacturer,
+        inStock: product.inStock,
+        categoryId,
+        merchantId: defaultMerchant.id,
+      },
     });
   }
   console.log("Demo products inserted successfully!");
 
+  // 4) Create images
   for (const image of demoProductImages) {
     await prisma.image.create({
       data: image,
     });
   }
   console.log("Demo images inserted successfully!");
-
-  for (const category of demoCategories) {
-    await prisma.category.create({
-      data: category,
-    });
-  }
-  console.log("Demo categories inserted successfully!");
 }
 
 insertDemoData()

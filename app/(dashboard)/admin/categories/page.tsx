@@ -50,7 +50,7 @@ const DashboardCategory = () => {
                   </label>
                 </th>
                 <th>Name</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -69,13 +69,26 @@ const DashboardCategory = () => {
                       </div>
                     </td>
 
-                    <th>
+                    <th className="flex gap-2 items-center">
                       <Link
                         href={`/admin/categories/${category?.id}`}
-                        className="btn btn-ghost btn-xs"
+                        className="px-3 py-1 text-sm rounded-none border border-gray-300 hover:bg-gray-50"
                       >
-                        details
+                        Edit
                       </Link>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await apiClient.delete(`/api/categories/${category?.id}`);
+                            if (res.status === 204) {
+                              setCategories((prev) => prev.filter((c) => c.id !== category?.id));
+                            }
+                          } catch {}
+                        }}
+                        className="px-3 py-1 text-sm rounded-none border border-red-300 text-red-600 hover:bg-red-50"
+                      >
+                        Delete
+                      </button>
                     </th>
                   </tr>
                 ))}

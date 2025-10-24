@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export type ProductInCart = {
   id: string;
   title: string;
-  price: number;
+  price: number; // already final price (discounted or base)
   image: string;
   amount: number;
 };
@@ -19,6 +19,7 @@ export type Actions = {
   addToCart: (newProduct: ProductInCart) => void;
   removeFromCart: (id: string) => void;
   updateCartAmount: (id: string, quantity: number) => void;
+  updateCartPrice: (id: string, price: number) => void;
   calculateTotals: () => void;
   clearCart: () => void;
 };
@@ -95,6 +96,16 @@ export const useProductStore = create<State & Actions>()(
             });
           }
 
+          return { products: [...state.products] };
+        });
+      },
+      updateCartPrice: (id, price) => {
+        set((state) => {
+          const cartItem = state.products.find((item) => item.id === id);
+          if (!cartItem) return { products: [...state.products] };
+          state.products = state.products.map((product) =>
+            product.id === id ? { ...product, price } : product
+          );
           return { products: [...state.products] };
         });
       },

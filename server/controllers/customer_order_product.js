@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../utills/db');
 const { asyncHandler, AppError } = require("../utills/errorHandler");
 
 const createOrderProduct = asyncHandler(async (request, response) => {
@@ -98,10 +97,8 @@ const deleteProductOrder = asyncHandler(async (request, response) => {
     throw new AppError("Order product not found", 404);
   }
 
-  await prisma.customer_order_product.deleteMany({
-    where: {
-      customerOrderId: id
-    }
+  await prisma.customer_order_product.delete({
+    where: { id }
   });
   return response.status(204).send();
 });
@@ -130,10 +127,8 @@ const getProductOrder = asyncHandler(async (request, response) => {
 });
 
 const getAllProductOrders = asyncHandler(async (request, response) => {
-  const productOrders = await prisma.customer_order_product.findMany({
-    select: {
-      productId: true,
-      quantity: true,
+  const rows = await prisma.customer_order_product.findMany({
+    include: {
       customerOrder: {
         select: {
           id: true,
@@ -149,43 +144,42 @@ const getAllProductOrders = asyncHandler(async (request, response) => {
           status: true,
           total: true
         }
+      },
+      product: {
+        select: {
+          id: true,
+          title: true,
+          mainImage: true,
+          price: true,
+          slug: true
+        }
       }
     }
   });
 
   const ordersMap = new Map();
-
-  for (const order of productOrders) {
-    const { customerOrder, productId, quantity } = order;
-    const { id, ...orderDetails } = customerOrder;
-
-    const product = await prisma.product.findUnique({
-      where: {
-        id: productId
-      },
-      select: {
-        id: true,
-        title: true,
-        mainImage: true,
-        price: true,
-        slug: true
-      }
-    });
+  for (const row of rows) {
+    const order = row.customerOrder;
+    if (!order) continue;
+    const id = order.id;
+    const product = row.product;
+    // Skip if product is missing (deleted) to avoid crashes
+    if (!product) continue;
+    const line = { ...product, quantity: row.quantity };
 
     if (ordersMap.has(id)) {
-      ordersMap.get(id).products.push({ ...product, quantity });
+      ordersMap.get(id).products.push(line);
     } else {
+      const { id: orderId, ...orderDetails } = order;
       ordersMap.set(id, {
-        customerOrderId: id,
+        customerOrderId: orderId,
         customerOrder: orderDetails,
-        products: [{ ...product, quantity }]
+        products: [line]
       });
     }
   }
 
-  const groupedOrders = Array.from(ordersMap.values());
-
-  return response.json(groupedOrders);
+  return response.json(Array.from(ordersMap.values()));
 });
 
 module.exports = { 

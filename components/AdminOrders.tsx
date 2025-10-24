@@ -15,14 +15,14 @@ import Link from "next/link";
 import apiClient from "@/lib/api";
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await apiClient.get("/api/orders");
+      // Get grouped orders with product lines and quantities
+      const response = await apiClient.get("/api/order-product");
       const data = await response.json();
-      
-      setOrders(data?.orders);
+      setOrders(data);
     };
     fetchOrders();
   }, []);
@@ -50,9 +50,9 @@ const AdminOrders = () => {
           </thead>
           <tbody>
             {/* row 1 */}
-            {orders && orders.length > 0 &&
-              orders.map((order) => (
-                <tr key={order?.id}>
+              {orders && orders.length > 0 &&
+                orders.map((row) => (
+                <tr key={row?.customerOrderId}>
                   <th>
                     <label>
                       <input type="checkbox" className="checkbox" />
@@ -61,33 +61,36 @@ const AdminOrders = () => {
 
                   <td>
                     <div>
-                      <p className="font-bold">#{order?.id}</p>
+                      <p className="font-bold">#{row?.customerOrderId}</p>
                     </div>
                   </td>
 
                   <td>
                     <div className="flex items-center gap-5">
                       <div>
-                        <div className="font-bold">{order?.name}</div>
-                        <div className="text-sm opacity-50">{order?.country}</div>
+                        <div className="font-bold">{row?.customerOrder?.name}</div>
+                        <div className="text-sm opacity-50">{row?.customerOrder?.country}</div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          {row?.products?.map((p:any) => `${p.title} x${p.quantity}`).join(', ')}
+                        </div>
                       </div>
                     </div>
                   </td>
 
                   <td>
                     <span className="badge badge-success text-white badge-sm">
-                      {order?.status}
+                      {row?.customerOrder?.status}
                     </span>
                   </td>
 
                   <td>
-                    <p>${order?.total}</p>
+                    <p>PKR {row?.customerOrder?.total}</p>
                   </td>
 
-                  <td>{ new Date(Date.parse(order?.dateTime)).toDateString() }</td>
+                  <td>{ new Date(Date.parse(row?.customerOrder?.dateTime)).toDateString() }</td>
                   <th>
                     <Link
-                      href={`/admin/orders/${order?.id}`}
+                      href={`/admin/orders/${row?.customerOrderId}`}
                       className="btn btn-ghost btn-xs"
                     >
                       details

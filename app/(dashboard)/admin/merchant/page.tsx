@@ -49,7 +49,7 @@ export default function MerchantPage() {
           <h1 className="text-3xl font-bold">Merchants</h1>
           <Link
             href="/admin/merchant/new"
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
+            className="btn-primary px-6 py-2 rounded-md transition"
           >
             Add Merchant
           </Link>
@@ -85,7 +85,7 @@ export default function MerchantPage() {
                         {merchant.status}
                       </span>
                     </td>
-                    <td className="py-4">{merchant.products.length}</td>
+                    <td className="py-4">{(merchant as any).products?.length ?? (merchant as any).product?.length ?? 0}</td>
                     <td className="py-4">
                       <Link
                         href={`/admin/merchant/${merchant.id}`}

@@ -22,10 +22,11 @@ const BuyNowSingleProductBtn = ({
   const { addToCart, calculateTotals } = useProductStore();
 
   const handleAddToCart = () => {
+    const finalPrice = (product as any)?.discountedPrice ?? product?.price;
     addToCart({
       id: product?.id.toString(),
       title: product?.title,
-      price: product?.price,
+      price: finalPrice,
       image: product?.mainImage,
       amount: quantityCount,
     });
@@ -36,7 +37,7 @@ const BuyNowSingleProductBtn = ({
   return (
     <button
       onClick={handleAddToCart}
-      className="btn w-[200px] text-lg border border-blue-500 hover:border-blue-500 border-1 font-normal bg-blue-500 text-white hover:bg-white hover:scale-110 hover:text-blue-500 transition-all uppercase ease-in max-[500px]:w-full"
+      className="btn w-[200px] text-lg font-semibold btn-primary hover:scale-110 transition-all uppercase ease-in max-[500px]:w-full"
     >
       Buy Now
     </button>

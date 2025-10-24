@@ -13,16 +13,21 @@ const SearchPage = async ({ searchParams }: Props) => {
   let products = [];
 
   try {
-    const data = await apiClient.get(
-      `/api/search?query=${sp?.search || ""}`
-    );
-
-    if (!data.ok) {
-      console.error('Failed to fetch search results:', data.statusText);
+    const query = typeof sp?.search === 'string' ? sp.search.trim() : '';
+    if (!query) {
       products = [];
     } else {
-      const result = await data.json();
-      products = Array.isArray(result) ? result : [];
+      const data = await apiClient.get(
+        `/api/search?query=${encodeURIComponent(query)}`
+      );
+
+      if (!data.ok) {
+        console.error('Failed to fetch search results:', data.statusText);
+        products = [];
+      } else {
+        const result = await data.json();
+        products = Array.isArray(result) ? result : [];
+      }
     }
   } catch (error) {
     console.error('Error fetching search results:', error);

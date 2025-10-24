@@ -12,6 +12,7 @@ const AddNewProduct = () => {
     merchantId?: string;
     title: string;
     price: number;
+    discountedPrice?: number;
     manufacturer: string;
     inStock: number;
     mainImage: string;
@@ -22,6 +23,7 @@ const AddNewProduct = () => {
     merchantId: "",
     title: "",
     price: 0,
+    discountedPrice: 0,
     manufacturer: "",
     inStock: 1,
     mainImage: "",
@@ -31,6 +33,7 @@ const AddNewProduct = () => {
   });
   const [categories, setCategories] = useState<Category[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
   const addProduct = async () => {
     if (
       !product.merchantId ||
@@ -56,10 +59,17 @@ const AddNewProduct = () => {
         const data = await response.json();
         console.log("Product created successfully:", data);
         toast.success("Product added successfully");
+        // Persist additional images linked to product ID
+        for (const img of additionalImages) {
+          try {
+            await apiClient.post('/api/images', { productID: data.id, image: img });
+          } catch {}
+        }
         setProduct({
           merchantId: "",
           title: "",
           price: 0,
+          discountedPrice: 0,
           manufacturer: "",
           inStock: 1,
           mainImage: "",
@@ -67,6 +77,7 @@ const AddNewProduct = () => {
           slug: "",
           categoryId: categories[0]?.id || "",
         });
+        setAdditionalImages([]);
       } else {
         const errorData = await response.json();
         console.error("Failed to create product:", errorData);
@@ -97,19 +108,33 @@ const AddNewProduct = () => {
     formData.append("uploadedFile", file);
 
     try {
-      const response = await apiClient.post("/api/main-image", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await apiClient.post("/api/main-image", formData);
 
       if (response.ok) {
         const data = await response.json();
+        setProduct((prev:any) => ({ ...prev, mainImage: data?.filename || prev.mainImage }));
       } else {
         console.error("File upload unsuccessfull");
       }
     } catch (error) {
       console.error("Error happend while sending request:", error);
     }
+  };
+
+  const uploadAdditionalImages = async (files: FileList) => {
+    const filenames: string[] = [];
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("uploadedFile", file);
+      try {
+        const res = await apiClient.post("/api/main-image", formData);
+        if (res.ok) {
+          const data = await res.json();
+          filenames.push(data?.filename);
+        }
+      } catch {}
+    }
+    return filenames;
   };
 
   const fetchCategories = async () => {
@@ -167,6 +192,38 @@ const AddNewProduct = () => {
               </span>
             )}
           </label>
+        </div>
+        <div className="mt-4">
+          <label className="form-control w-full max-w-sm">
+            <div className="label">
+              <span className="label-text">Upload images (up to 3)</span>
+            </div>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="file-input file-input-bordered w-full max-w-sm"
+              onChange={async (e: any) => {
+                const files = e.target.files as FileList;
+                if (!files || files.length === 0) return;
+                const selected = Array.from(files).slice(0, 3);
+                const uploaded = await uploadAdditionalImages({ length: selected.length, item: (i:number)=>selected[i], ...selected } as any as FileList);
+                const combined = uploaded.slice(0, 3);
+                setAdditionalImages(combined.slice(1));
+                if (combined[0]) setProduct((prev:any) => ({ ...prev, mainImage: combined[0] }));
+              }}
+            />
+          </label>
+          {(product.mainImage || additionalImages.length > 0) && (
+            <div className="flex gap-2 mt-2 flex-wrap">
+              {product.mainImage && (
+                <Image src={`/${product.mainImage}`} alt="main" width={60} height={60} className="w-auto h-auto" />
+              )}
+              {additionalImages.map((img, idx) => (
+                <Image key={idx} src={`/${img}`} alt="uploaded" width={60} height={60} className="w-auto h-auto" />
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
@@ -232,12 +289,23 @@ const AddNewProduct = () => {
               <span className="label-text">Product price:</span>
             </div>
             <input
-              type="text"
+              type="number"
               className="input input-bordered w-full max-w-xs"
               value={product?.price}
-              onChange={(e) =>
-                setProduct({ ...product, price: Number(e.target.value) })
-              }
+              onChange={(e) => setProduct({ ...product, price: Number(e.target.value || 0) })}
+            />
+          </label>
+        </div>
+        <div>
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Discounted price (optional):</span>
+            </div>
+            <input
+              type="number"
+              className="input input-bordered w-full max-w-xs"
+              value={product?.discountedPrice ?? 0}
+              onChange={(e) => setProduct({ ...product, discountedPrice: Number(e.target.value || 0) })}
             />
           </label>
         </div>
@@ -273,25 +341,7 @@ const AddNewProduct = () => {
             </select>
           </label>
         </div>
-        <div>
-          <input
-            type="file"
-            className="file-input file-input-bordered file-input-lg w-full max-w-sm"
-            onChange={(e: any) => {
-              uploadFile(e.target.files[0]);
-              setProduct({ ...product, mainImage: e.target.files[0].name });
-            }}
-          />
-          {product?.mainImage && (
-            <Image
-              src={`/` + product?.mainImage}
-              alt={product?.title}
-              className="w-auto h-auto"
-              width={100}
-              height={100}
-            />
-          )}
-        </div>
+        
         <div>
           <label className="form-control">
             <div className="label">

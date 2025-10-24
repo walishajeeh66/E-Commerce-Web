@@ -29,10 +29,10 @@ const Filters = () => {
   // getting current page number from Zustand store
   const { page } = usePaginationStore();
 
-  const [inputCategory, setInputCategory] = useState<InputCategory>({
+  const [inputCategory, setInputCategory] = useState<any>({
     inStock: { text: "instock", isChecked: true },
     outOfStock: { text: "outofstock", isChecked: true },
-    priceFilter: { text: "price", value: 3000 },
+    priceBucket: { text: "priceBucket", value: "all" }, // all | 0-1000 | 1000-2000 | 3000+
     ratingFilter: { text: "rating", value: 0 },
   });
   const { sortBy } = useSortStore();
@@ -43,7 +43,11 @@ const Filters = () => {
     params.set("outOfStock", inputCategory.outOfStock.isChecked.toString());
     params.set("inStock", inputCategory.inStock.isChecked.toString());
     params.set("rating", inputCategory.ratingFilter.value.toString());
-    params.set("price", inputCategory.priceFilter.value.toString());
+    if (inputCategory.priceBucket.value && inputCategory.priceBucket.value !== 'all') {
+      params.set("priceBucket", inputCategory.priceBucket.value);
+    } else {
+      params.delete("priceBucket");
+    }
     params.set("sort", sortBy);
     params.set("page", page.toString());
     replace(`${pathname}?${params}`);
@@ -51,10 +55,10 @@ const Filters = () => {
 
   return (
     <div>
-      <h3 className="text-2xl mb-2">Filters</h3>
-      <div className="divider"></div>
-      <div className="flex flex-col gap-y-1">
-        <h3 className="text-xl mb-2">Availability</h3>
+      <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+      <div className="my-3 h-px w-full bg-gray-200"></div>
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-sm font-medium text-gray-800">Availability</h3>
         <div className="form-control">
           <label className="cursor-pointer flex items-center">
             <input
@@ -69,9 +73,9 @@ const Filters = () => {
                   },
                 })
               }
-              className="checkbox"
+              className="checkbox checkbox-sm"
             />
-            <span className="label-text text-lg ml-2 text-black">In stock</span>
+            <span className="label-text ml-2 text-sm text-gray-800">In stock</span>
           </label>
         </div>
 
@@ -89,44 +93,64 @@ const Filters = () => {
                   },
                 })
               }
-              className="checkbox"
+              className="checkbox checkbox-sm"
             />
-            <span className="label-text text-lg ml-2 text-black">
-              Out of stock
-            </span>
+            <span className="label-text ml-2 text-sm text-gray-800">Out of stock</span>
           </label>
         </div>
       </div>
 
-      <div className="divider"></div>
-      <div className="flex flex-col gap-y-1">
-        <h3 className="text-xl mb-2">Price</h3>
-        <div>
-          <input
-            type="range"
-            min={0}
-            max={3000}
-            step={10}
-            value={inputCategory.priceFilter.value}
-            className="range"
-            onChange={(e) =>
-              setInputCategory({
-                ...inputCategory,
-                priceFilter: {
-                  text: "price",
-                  value: Number(e.target.value),
-                },
-              })
-            }
-          />
-          <span>{`Max price: $${inputCategory.priceFilter.value}`}</span>
+      <div className="my-4 h-px w-full bg-gray-200"></div>
+      <div className="flex flex-col gap-y-2">
+        <h3 className="text-sm font-medium text-gray-800">Price</h3>
+        <div className="flex flex-col gap-2">
+          <label className="flex items-center gap-2 cursor-pointer hover:text-brand">
+            <input
+              type="radio"
+              name="priceBucket"
+              checked={inputCategory.priceBucket.value === '0-1000'}
+              onChange={() => setInputCategory({ ...inputCategory, priceBucket: { text: 'priceBucket', value: '0-1000' } })}
+              className="accent-[var(--brand-blue,#1E396E)] focus:ring-[var(--brand-blue,#1E396E)]"
+            />
+            <span className="text-sm text-gray-800">PKR 0 - 1,000</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer hover:text-brand">
+            <input
+              type="radio"
+              name="priceBucket"
+              checked={inputCategory.priceBucket.value === '1000-2000'}
+              onChange={() => setInputCategory({ ...inputCategory, priceBucket: { text: 'priceBucket', value: '1000-2000' } })}
+              className="accent-[var(--brand-blue,#1E396E)] focus:ring-[var(--brand-blue,#1E396E)]"
+            />
+            <span className="text-sm text-gray-800">PKR 1,000 - 2,000</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer hover:text-brand">
+            <input
+              type="radio"
+              name="priceBucket"
+              checked={inputCategory.priceBucket.value === '3000+'}
+              onChange={() => setInputCategory({ ...inputCategory, priceBucket: { text: 'priceBucket', value: '3000+' } })}
+              className="accent-[var(--brand-blue,#1E396E)] focus:ring-[var(--brand-blue,#1E396E)]"
+            />
+            <span className="text-sm text-gray-800">PKR ≥ 3,000</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer hover:text-brand">
+            <input
+              type="radio"
+              name="priceBucket"
+              checked={inputCategory.priceBucket.value === 'all'}
+              onChange={() => setInputCategory({ ...inputCategory, priceBucket: { text: 'priceBucket', value: 'all' } })}
+              className="accent-[var(--brand-blue,#1E396E)] focus:ring-[var(--brand-blue,#1E396E)]"
+            />
+            <span className="text-sm text-gray-800">All prices</span>
+          </label>
         </div>
       </div>
 
-      <div className="divider"></div>
+      <div className="my-4 h-px w-full bg-gray-200"></div>
 
       <div>
-        <h3 className="text-xl mb-2">Minimum Rating:</h3>
+        <h3 className="text-sm font-medium text-gray-800 mb-2">Minimum Rating</h3>
         <input
           type="range"
           min={0}
@@ -138,10 +162,10 @@ const Filters = () => {
               ratingFilter: { text: "rating", value: Number(e.target.value) },
             })
           }
-          className="range range-info"
+          className="range range-sm accent-[var(--brand-blue,#1E396E)]"
           step="1"
         />
-        <div className="w-full flex justify-between text-xs px-2">
+        <div className="w-full flex justify-between text-[10px] px-2 text-gray-600">
           <span>0</span>
           <span>1</span>
           <span>2</span>

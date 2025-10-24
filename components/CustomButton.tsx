@@ -32,7 +32,7 @@ const CustomButton = ({
   return (
     <button
       type={`${buttonType}`}
-      className={`${customWidth !== "no" && `w-${customWidth}`} uppercase bg-white px-${paddingX} py-${paddingY} text-${textSize} border border-black border-gray-300 font-bold text-blue-600 shadow-sm hover:bg-black hover:bg-gray-100 focus:outline-none focus:ring-2`}
+      className={`${customWidth !== "no" && `w-${customWidth}`} uppercase px-${paddingX} py-${paddingY} text-${textSize} font-semibold rounded-md btn-primary focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-red,#e10600)]`}
     >
       {text}
     </button>

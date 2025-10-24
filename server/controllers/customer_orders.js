@@ -304,6 +304,7 @@ async function deleteCustomerOrder(request, response) {
       });
     }
 
+    // Cascade will delete related items in customer_order_product
     await prisma.customer_order.delete({
       where: {
         id: id,

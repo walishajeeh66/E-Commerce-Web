@@ -13,6 +13,8 @@ const orderProductRouter = require('./routes/customer_order_product');
 const wishlistRouter = require('./routes/wishlist');
 const notificationsRouter = require('./routes/notifications');
 const merchantRouter = require('./routes/merchant'); // Add this line
+const statsRouter = require('./routes/stats');
+const heroRouter = require('./routes/hero');
 var cors = require("cors");
 
 // Import logging middleware
@@ -111,6 +113,7 @@ app.use("/api/main-image", uploadLimiter);
 app.use("/api/wishlist", wishlistLimiter);
 app.use("/api/products", productLimiter);
 app.use("/api/merchants", productLimiter);
+app.use("/api/stats", generalLimiter);
 
 // Apply stricter rate limiting to authentication-related routes
 app.use("/api/users/email", authLimiter); // For login attempts via email lookup
@@ -130,6 +133,8 @@ app.use("/api/slugs", slugRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/notifications", notificationsRouter);
 app.use("/api/merchants", merchantRouter); 
+app.use("/api/stats", statsRouter);
+app.use("/api/hero", heroRouter);
 
 // Health check endpoint (no rate limiting)
 app.get('/health', (req, res) => {

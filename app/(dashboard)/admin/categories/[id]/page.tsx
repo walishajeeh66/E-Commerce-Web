@@ -17,8 +17,9 @@ const DashboardSingleCategory = ({
   const resolvedParams = use(params);
   const id = resolvedParams.id;
   
-  const [categoryInput, setCategoryInput] = useState<{ name: string }>({
+  const [categoryInput, setCategoryInput] = useState<{ name: string; icon?: string }>({
     name: "",
+    icon: "",
   });
   const router = useRouter();
 
@@ -43,15 +44,11 @@ const DashboardSingleCategory = ({
 
   const updateCategory = async () => {
     if (categoryInput.name.length > 0) {
-      const requestOptions = {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: convertCategoryNameToURLFriendly(categoryInput.name),
-        }),
-      };
       // sending API request for updating a category
-      apiClient.put(`/api/categories/${id}`, requestOptions)
+      apiClient.put(`/api/categories/${id}`, {
+        name: convertCategoryNameToURLFriendly(categoryInput.name),
+        icon: categoryInput.icon,
+      })
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -78,6 +75,7 @@ const DashboardSingleCategory = ({
       .then((data) => {
         setCategoryInput({
           name: data?.name,
+          icon: data?.icon || "",
         });
       });
   }, [id]);
@@ -98,6 +96,22 @@ const DashboardSingleCategory = ({
               value={formatCategoryName(categoryInput.name)}
               onChange={(e) =>
                 setCategoryInput({ ...categoryInput, name: e.target.value })
+              }
+            />
+          </label>
+        </div>
+
+        <div>
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Category icon (filename):</span>
+            </div>
+            <input
+              type="text"
+              className="input input-bordered w-full max-w-xs"
+              value={categoryInput.icon}
+              onChange={(e) =>
+                setCategoryInput({ ...categoryInput, icon: e.target.value })
               }
             />
           </label>

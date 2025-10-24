@@ -61,9 +61,7 @@ export const CartModule = () => {
                           <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">{product.size}</p>
                         ) : null}
                       </div> */}
-                    <p className="mt-1 text-sm font-medium text-gray-900">
-                      ${product.price}
-                    </p>
+                    <p className="mt-1 text-sm font-medium text-gray-900">PKR {product.price}</p>
                   </div>
 
                   <div className="mt-4 sm:mt-0 sm:pr-9">
@@ -118,7 +116,7 @@ export const CartModule = () => {
           <div className="flex items-center justify-between">
             <dt className="text-sm text-gray-600">Subtotal</dt>
             <dd className="text-sm font-medium text-gray-900">
-              ${total}
+              PKR {total}
             </dd>
           </div>
           <div className="flex items-center justify-between border-t border-gray-200 pt-4">
@@ -137,44 +135,23 @@ export const CartModule = () => {
                 />
               </a>
             </dt>
-            <dd className="text-sm font-medium text-gray-900">$5.00</dd>
+            <dd className="text-sm font-medium text-gray-900">PKR 120</dd>
           </div>
-          <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-            <dt className="flex text-sm text-gray-600">
-              <span>Tax estimate</span>
-              <a
-                href="#"
-                className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-              >
-                <span className="sr-only">
-                  Learn more about how tax is calculated
-                </span>
-                <FaCircleQuestion
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                />
-              </a>
-            </dt>
-            <dd className="text-sm font-medium text-gray-900">
-              ${total / 5}
-            </dd>
-          </div>
+          {/* Tax removed per requirements */}
           <div className="flex items-center justify-between border-t border-gray-200 pt-4">
             <dt className="text-base font-medium text-gray-900">
               Order total
             </dt>
-            <dd className="text-base font-medium text-gray-900">
-              ${total === 0 ? 0 : Math.round(total + total / 5 + 5)}
-            </dd>
+            <dd className="text-base font-medium text-gray-900">PKR {total === 0 ? 0 : Math.round(total + 120)}</dd>
           </div>
         </dl>
         {products.length > 0 && (
           <div className="mt-6">
             <Link
               href="/checkout"
-              className="block flex justify-center items-center w-full uppercase bg-white px-4 py-3 text-base border border-black border-gray-300 font-bold text-blue-600 shadow-sm hover:bg-black hover:bg-gray-100 focus:outline-none focus:ring-2"
+              className="block flex justify-center items-center w-full uppercase px-4 py-3 text-base font-semibold rounded-md btn-primary"
             >
-              <span>Checkout</span>
+              Checkout
             </Link>
           </div>
         )}

@@ -8,6 +8,7 @@ import {
   Products,
   SortBy,
 } from "@/components";
+import FiltersMobile from "@/components/FiltersMobile";
 import React from "react";
 import { sanitize } from "@/lib/sanitize";
 
@@ -31,19 +32,24 @@ const ShopPage = async ({ params, searchParams }: { params: Promise<{ slug?: str
     <div className="text-black bg-white">
       <div className=" max-w-screen-2xl mx-auto px-10 max-sm:px-5">
         <Breadcrumb />
-        <div className="grid grid-cols-[200px_1fr] gap-x-10 max-md:grid-cols-1 max-md:gap-y-5">
-          <Filters />
+        <div className="grid grid-cols-[260px_1fr] gap-8 max-md:grid-cols-1">
+          <aside className="hidden md:block rounded-lg border border-gray-200 bg-white p-5 h-max">
+            <Filters />
+          </aside>
           <div>
-            <div className="flex justify-between items-center max-lg:flex-col max-lg:gap-y-5">
-              <h2 className="text-2xl font-bold max-sm:text-xl max-[400px]:text-lg uppercase">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
+              <h2 className="text-2xl font-bold tracking-tight text-gray-900 max-sm:text-xl">
                 {awaitedParams?.slug && awaitedParams?.slug[0]?.length > 0
                   ? sanitize(improveCategoryText(awaitedParams?.slug[0]))
                   : "All products"}
               </h2>
-
-              <SortBy />
+              <div className="flex items-center gap-3">
+                <FiltersMobile />
+                <div className="text-sm text-gray-600">Showing results</div>
+                <SortBy />
+              </div>
             </div>
-            <div className="divider"></div>
+            <div className="my-4 h-px w-full bg-gray-200"></div>
             <Products params={awaitedParams} searchParams={awaitedSearchParams} />
             <Pagination />
           </div>

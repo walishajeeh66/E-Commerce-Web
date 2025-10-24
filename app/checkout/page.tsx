@@ -377,7 +377,7 @@ const CheckoutPage = () => {
                     <p className="text-gray-500">x{product?.amount}</p>
                   </div>
                   <p className="flex-none text-base font-medium">
-                    ${product?.price}
+                    PKR {product?.price}
                   </p>
                 </li>
               ))}
@@ -386,20 +386,17 @@ const CheckoutPage = () => {
             <dl className="hidden space-y-6 border-t border-gray-200 pt-6 text-sm font-medium text-gray-900 lg:block">
               <div className="flex items-center justify-between">
                 <dt className="text-gray-600">Subtotal</dt>
-                <dd>${total}</dd>
+                <dd>PKR {total}</dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Shipping</dt>
-                <dd>$5</dd>
+                <dt className="text-gray-600">Delivery charges</dt>
+                <dd>PKR 120</dd>
               </div>
-              <div className="flex items-center justify-between">
-                <dt className="text-gray-600">Taxes</dt>
-                <dd>${total / 5}</dd>
-              </div>
+              {/* Taxes removed */}
               <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                 <dt className="text-base">Total</dt>
                 <dd className="text-base">
-                  ${total === 0 ? 0 : Math.round(total + total / 5 + 5)}
+                  PKR {total === 0 ? 0 : Math.round(total + 120)}
                 </dd>
               </div>
             </dl>
@@ -749,7 +746,7 @@ const CheckoutPage = () => {
                 type="button"
                 onClick={makePurchase}
                 disabled={isSubmitting}
-                className="w-full rounded-md border border-transparent bg-blue-500 px-20 py-2 text-lg font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full rounded-md btn-primary px-20 py-3 text-lg font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-red,#e10600)] focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Processing Order..." : "Place Order"}
               </button>

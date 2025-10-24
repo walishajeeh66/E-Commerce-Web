@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../utills/db');
 
 async function searchProducts(request, response) {
     try {
@@ -13,12 +12,14 @@ async function searchProducts(request, response) {
                 OR: [
                     {
                         title: {
-                            contains: query
+                            contains: query,
+                            mode: 'insensitive'
                         }
                     },
                     {
                         description: {
-                            contains: query
+                            contains: query,
+                            mode: 'insensitive'
                         }
                     }
                 ]

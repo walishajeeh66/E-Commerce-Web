@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useNotificationStore } from '@/app/_zustand/notificationStore';
 import { notificationApi } from '@/lib/notification-api';
+import apiClient from '@/lib/api';
 import { NotificationFilters } from '@/types/notification';
 import toast from 'react-hot-toast';
 
@@ -32,10 +33,11 @@ export const useNotifications = () => {
 
   // Get current user ID
   const getCurrentUserId = useCallback(async () => {
-    if (!session?.user?.email) return null;
-    
+    const email = session?.user?.email;
+    if (!email) return null;
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/email/${session.user.email}`);
+      const response = await apiClient.get(`/api/users/email/${encodeURIComponent(email)}`, { cache: 'no-store' });
+      if (!response.ok) return null;
       const userData = await response.json();
       return userData?.id || null;
     } catch (error) {
@@ -209,16 +211,16 @@ export const useUnreadCount = () => {
   const { data: session } = useSession();
 
   const fetchUnreadCount = useCallback(async () => {
-    if (!session?.user?.email) return;
+    const email = session?.user?.email;
+    if (!email) return;
 
     try {
-      // Get user ID first
-      const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/email/${session.user.email}`);
+      const userResponse = await apiClient.get(`/api/users/email/${encodeURIComponent(email)}`, { cache: 'no-store' });
+      if (!userResponse.ok) return;
       const userData = await userResponse.json();
-      
       if (userData?.id) {
         const { unreadCount } = await notificationApi.getUnreadCount(userData.id);
-        setUnreadCount(unreadCount);
+        setUnreadCount(unreadCount ?? 0);
       }
     } catch (error) {
       console.error('Error fetching unread count:', error);

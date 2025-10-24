@@ -99,13 +99,7 @@ const AdminSingleOrder = () => {
         return;
       }
 
-      apiClient.put(`/api/orders/${order?.id}`, {
-        method: "PUT", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(order),
-      })
+      apiClient.put(`/api/orders/${order?.id}`, order)
         .then((response) => {
           if (response.status === 200) {
             toast.success("Order updated successfuly");
@@ -320,13 +314,15 @@ const AdminSingleOrder = () => {
                   status: e.target.value as
                     | "processing"
                     | "delivered"
-                    | "canceled",
+                    | "cancelled"
+                    | "completed",
                 })
               }
             >
               <option value="processing">Processing</option>
               <option value="delivered">Delivered</option>
-              <option value="canceled">Canceled</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="completed">Completed</option>
             </select>
           </label>
         </div>
@@ -359,23 +355,23 @@ const AdminSingleOrder = () => {
                   {product?.product?.title}
                 </Link>
                 <p>
-                  ${product?.product?.price} * {product?.quantity} items
+                  PKR {product?.product?.price} * {product?.quantity} items
                 </p>
               </div>
             </div>
           ))}
           <div className="flex flex-col gap-y-2 mt-10">
-            <p className="text-2xl">Subtotal: ${order?.total}</p>
-            <p className="text-2xl">Tax 20%: ${order?.total / 5}</p>
-            <p className="text-2xl">Shipping: $5</p>
+            <p className="text-2xl">Subtotal: PKR {order?.total}</p>
+            <p className="text-2xl">Tax 20%: PKR {order?.total / 5}</p>
+            <p className="text-2xl">Shipping: PKR 5</p>
             <p className="text-3xl font-semibold">
-              Total: ${order?.total + order?.total / 5 + 5}
+              Total: PKR {order?.total + order?.total / 5 + 5}
             </p>
           </div>
           <div className="flex gap-x-2 max-sm:flex-col mt-5">
             <button
               type="button"
-              className="uppercase bg-blue-500 px-10 py-5 text-lg border border-black border-gray-300 font-bold text-white shadow-sm hover:bg-blue-600 hover:text-white focus:outline-none focus:ring-2"
+              className="uppercase btn-primary px-10 py-5 text-lg font-bold shadow-sm focus:outline-none focus:ring-2"
               onClick={updateOrder}
             >
               Update order

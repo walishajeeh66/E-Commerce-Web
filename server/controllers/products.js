@@ -266,6 +266,7 @@ const createProduct = asyncHandler(async (request, response) => {
     title,
     mainImage,
     price,
+    discountedPrice,
     description,
     manufacturer,
     categoryId,
@@ -285,7 +286,7 @@ const createProduct = asyncHandler(async (request, response) => {
     throw new AppError("Missing required field: slug", 400);
   }
 
-  if (!price) {
+  if (!price && price !== 0) {
     throw new AppError("Missing required field: price", 400);
   }
 
@@ -293,6 +294,7 @@ const createProduct = asyncHandler(async (request, response) => {
     throw new AppError("Missing required field: categoryId", 400);
   }
 
+  const safeDescription = (description || '').toString().slice(0, 10000);
   const product = await prisma.product.create({
     data: {
       merchantId,
@@ -300,8 +302,9 @@ const createProduct = asyncHandler(async (request, response) => {
       title,
       mainImage,
       price,
+      discountedPrice: typeof discountedPrice === 'number' ? discountedPrice : 0,
       rating: 5,
-      description,
+      description: safeDescription,
       manufacturer,
       categoryId,
       inStock,
@@ -372,17 +375,7 @@ const deleteProduct = asyncHandler(async (request, response) => {
     throw new AppError("Product ID is required", 400);
   }
 
-  // Check for related records in order_product table
-  const relatedOrderProductItems = await prisma.customer_order_product.findMany({
-    where: {
-      productId: id,
-    },
-  });
-  
-  if(relatedOrderProductItems.length > 0){
-    throw new AppError("Cannot delete product because of foreign key constraint", 400);
-  }
-
+  // With Prisma cascades, deleting a product will remove related order items
   await prisma.product.delete({
     where: {
       id,

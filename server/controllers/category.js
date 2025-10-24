@@ -1,9 +1,8 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../utills/db");
 const { asyncHandler, AppError } = require("../utills/errorHandler");
 
 const createCategory = asyncHandler(async (request, response) => {
-  const { name } = request.body;
+  const { name, icon } = request.body;
 
   if (!name || name.trim().length === 0) {
     throw new AppError("Category name is required", 400);
@@ -12,6 +11,7 @@ const createCategory = asyncHandler(async (request, response) => {
   const category = await prisma.category.create({
     data: {
       name: name.trim(),
+      icon: icon ? icon.trim() : null,
     },
   });
   return response.status(201).json(category);
@@ -19,7 +19,7 @@ const createCategory = asyncHandler(async (request, response) => {
 
 const updateCategory = asyncHandler(async (request, response) => {
   const { id } = request.params;
-  const { name } = request.body;
+  const { name, icon } = request.body;
 
   if (!id) {
     throw new AppError("Category ID is required", 400);
@@ -45,6 +45,7 @@ const updateCategory = asyncHandler(async (request, response) => {
     },
     data: {
       name: name.trim(),
+      icon: icon !== undefined ? (icon ? icon.trim() : null) : existingCategory.icon,
     },
   });
 
@@ -68,17 +69,7 @@ const deleteCategory = asyncHandler(async (request, response) => {
     throw new AppError("Category not found", 404);
   }
 
-  // Check if category has products
-  const productsWithCategory = await prisma.product.findFirst({
-    where: {
-      categoryId: id,
-    },
-  });
-
-  if (productsWithCategory) {
-    throw new AppError("Cannot delete category that has products", 400);
-  }
-
+  // Deleting a category will cascade delete products and related order items (via Prisma cascades)
   await prisma.category.delete({
     where: {
       id: id,

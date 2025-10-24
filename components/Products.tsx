@@ -41,10 +41,15 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
   let products = [];
 
   try {
+    // Build price filter from buckets
+    const priceBucket = (searchParams?.priceBucket as string) || 'all';
+    let priceQuery = '';
+    if (priceBucket === '0-1000') priceQuery = 'filters[price][$gte]=0&filters[price][$lte]=1000&';
+    if (priceBucket === '1000-2000') priceQuery = 'filters[price][$gte]=1000&filters[price][$lte]=2000&';
+    if (priceBucket === '3000+') priceQuery = 'filters[price][$gte]=3000&';
+
     // sending API request with filtering, sorting and pagination for getting all products
-    const data = await apiClient.get(`/api/products?filters[price][$lte]=${
-        searchParams?.price || 3000
-      }&filters[rating][$gte]=${
+    const data = await apiClient.get(`/api/products?${priceQuery}filters[rating][$gte]=${
         Number(searchParams?.rating) || 0
       }&filters[inStock][$${stockMode}]=1&${
         params?.slug?.length! > 0
@@ -66,7 +71,7 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
   }
 
   return (
-    <div className="grid grid-cols-3 justify-items-center gap-x-2 gap-y-5 max-[1300px]:grid-cols-3 max-lg:grid-cols-2 max-[500px]:grid-cols-1">
+    <div className="grid grid-cols-4 gap-4 max-2xl:grid-cols-3 max-lg:grid-cols-2 max-sm:grid-cols-1">
       {products.length > 0 ? (
         products.map((product: any) => (
           <ProductItem key={product.id} product={product} color="black" />

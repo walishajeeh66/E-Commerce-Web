@@ -15,7 +15,7 @@ async function uploadMainImage(req, res) {
         return res.status(500).send(err);
       }
   
-      res.status(200).json({ message: "Fajl je uspešno otpremljen" });
+      res.status(200).json({ message: "Fajl je uspešno otpremljen", filename: uploadedFile.name });
     });
   }
 

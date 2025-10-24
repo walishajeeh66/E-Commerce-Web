@@ -24,6 +24,32 @@ import { signOut, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import apiClient from "@/lib/api";
+import { useRouter } from "next/navigation";
+
+const CategorySelector = () => {
+  const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const router = useRouter();
+  useEffect(() => {
+    let mounted = true;
+    apiClient.get('/api/categories').then(async (res) => {
+      if (!res.ok) return;
+      const data = await res.json();
+      if (mounted && Array.isArray(data)) setCategories(data);
+    }).catch(()=>{});
+    return () => { mounted = false };
+  }, []);
+  return (
+    <div className="w-full flex items-center gap-2">
+      <select className="select select-bordered w-full" onChange={(e)=>{
+        const val = e.target.value;
+        if (val) router.push(`/shop/${encodeURIComponent(val)}`);
+      }}>
+        <option value="">All categories</option>
+        {categories.map((c)=> (<option key={c.id} value={c.name}>{c.name}</option>))}
+      </select>
+    </div>
+  );
+};
 
 const Header = () => {
   const { data: session, status } = useSession();
@@ -77,28 +103,44 @@ const Header = () => {
     <header className="bg-white">
       <HeaderTop />
       {pathname.startsWith("/admin") === false && (
-        <div className="h-32 bg-white flex items-center justify-between px-16 max-[1320px]:px-16 max-md:px-6 max-lg:flex-col max-lg:gap-y-7 max-lg:justify-center max-lg:h-60 max-w-screen-2xl mx-auto">
-          <Link href="/">
-            <img src="/logo v1 svg.svg" width={300} height={300} alt="singitronic logo" className="relative right-5 max-[1023px]:w-56" />
-          </Link>
-          <SearchInput />
-          <div className="flex gap-x-10 items-center">
-            <NotificationBell />
-            <HeartElement wishQuantity={wishQuantity} />
-            <CartElement />
+        <>
+          <div className="h-24 bg-blue-gradient flex items-center justify-between px-10 max-[1320px]:px-10 max-md:px-6 max-lg:flex-col max-lg:gap-y-5 max-lg:justify-center max-lg:h-48 max-w-screen-2xl mx-auto">
+            <Link href="/">
+              <span className="relative right-5 text-3xl font-extrabold tracking-wide text-white">Technology <span className="text-white/90">Zone</span></span>
+            </Link>
+          <div className="w-full flex items-center justify-center gap-x-4">
+            <div className="hidden md:block w-full"><SearchInput /></div>
           </div>
-        </div>
+          <div className="flex gap-x-8 items-center text-white relative">
+              <NotificationBell />
+              <HeartElement wishQuantity={wishQuantity} />
+              <CartElement />
+            <button
+              className="md:hidden inline-flex items-center justify-center rounded-full bg-white/20 text-white w-10 h-10"
+              aria-label="Categories"
+              onClick={() => {
+                const el = document.getElementById('mobile-categories-panel');
+                if (el) el.classList.toggle('hidden');
+              }}
+            >
+              ☰
+            </button>
+            </div>
+          </div>
+          <div id="mobile-categories-panel" className="md:hidden hidden px-6 pb-4 z-50 relative">
+            <div className="dropdown-panel p-3">
+              <div className="flex flex-col gap-3">
+                <SearchInput />
+                <CategorySelector />
+              </div>
+            </div>
+          </div>
+        </>
       )}
       {pathname.startsWith("/admin") === true && (
         <div className="flex justify-between h-32 bg-white items-center px-16 max-[1320px]:px-10  max-w-screen-2xl mx-auto max-[400px]:px-5">
           <Link href="/">
-            <Image
-              src="/logo v1.png"
-              width={130}
-              height={130}
-              alt="singitronic logo"
-              className="w-56 h-auto"
-            />
+            <span className="text-2xl font-extrabold tracking-wide" style={{color:'#1E396E'}}>Technology <span style={{color:'#111'}}>Zone</span></span>
           </Link>
           <div className="flex gap-x-5 items-center">
             <NotificationBell />
@@ -114,7 +156,7 @@ const Header = () => {
               </div>
               <ul
                 tabIndex={0}
-                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                className="dropdown-content z-[1] menu p-2 shadow bg-white rounded-box w-52 border border-gray-200"
               >
                 <li>
                   <Link href="/admin">Dashboard</Link>
