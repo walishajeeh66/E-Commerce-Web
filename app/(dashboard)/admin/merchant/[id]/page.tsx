@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState, use, useCallback } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,7 +48,7 @@ export default function MerchantDetailPage({
 
   const router = useRouter();
 
-  const fetchMerchant = async () => {
+  const fetchMerchant = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiClient.get(`/api/merchants/${id}`);
@@ -77,11 +77,11 @@ export default function MerchantDetailPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
   useEffect(() => {
     fetchMerchant();
-  }, [id]); 
+  }, [id, fetchMerchant]); 
 
 const handleInputChange = (
     e: React.ChangeEvent<

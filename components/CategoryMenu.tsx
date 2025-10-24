@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Category wrapper that will contain title and category items
 // Name of the component: CategoryMenu.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <CategoryMenu />
 // Input parameters: no input parameters
@@ -39,7 +39,7 @@ const CategoryMenu = () => {
           <button
             type="button"
             aria-label="Scroll left"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow px-3 py-2 hidden md:block"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow px-3 py-2"
             onClick={() => {
               if (scrollerRef.current) scrollerRef.current.scrollBy({ left: -300, behavior: "smooth" });
             }}
@@ -60,7 +60,7 @@ const CategoryMenu = () => {
           <button
             type="button"
             aria-label="Scroll right"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow px-3 py-2 hidden md:block"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full shadow px-3 py-2"
             onClick={() => {
               if (scrollerRef.current) scrollerRef.current.scrollBy({ left: 300, behavior: "smooth" });
             }}

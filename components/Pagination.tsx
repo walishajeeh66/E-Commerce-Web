@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Pagination for navigating the shop page
 // Name of the component: Pagination.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <Pagination />
 // Input parameters: no input parameters

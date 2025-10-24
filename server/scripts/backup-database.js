@@ -26,15 +26,15 @@ class DatabaseBackup {
 
         const url = new URL(databaseUrl);
         const host = url.hostname;
-        const port = url.port || '3306';
+        const port = url.port || '5432';
         const database = url.pathname.substring(1);
         const username = url.username;
         const password = url.password;
 
-        const mysqldumpCommand = `mysqldump -h ${host} -P ${port} -u ${username} -p${password} ${database} > ${backupFile}`;
+        const pgDumpCommand = `pg_dump -h ${host} -p ${port} -U ${username} -d ${database} > ${backupFile}`;
 
         return new Promise((resolve, reject) => {
-            exec(mysqldumpCommand, (error, stdout, stderr) => {
+            exec(pgDumpCommand, (error, stdout, stderr) => {
                 if (error) {
                     console.error('❌ Backup failed:', error);
                     reject(error);

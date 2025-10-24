@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Header component
 // Name of the component: Header.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <Header />
 // Input parameters: no input parameters
@@ -10,7 +10,7 @@
 
 "use client";
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import HeaderTop from "./HeaderTop";
 import Image from "next/image";
 import SearchInput from "./SearchInput";
@@ -62,7 +62,7 @@ const Header = () => {
   };
 
   // getting all wishlist items by user id
-  const getWishlistByUserId = async (id: string) => {
+  const getWishlistByUserId = useCallback(async (id: string) => {
     const response = await apiClient.get(`/api/wishlist/${id}`, {
       cache: "no-store",
     });
@@ -72,17 +72,17 @@ const Header = () => {
       title: string;
       price: number;
       image: string;
-      slug:string
+      slug: string;
       stockAvailabillity: number;
     }[] = [];
     
     wishlist.map((item: any) => productArray.push({id: item?.product?.id, title: item?.product?.title, price: item?.product?.price, image: item?.product?.mainImage, slug: item?.product?.slug, stockAvailabillity: item?.product?.inStock}));
     
     setWishlist(productArray);
-  };
+  }, [setWishlist]);
 
   // getting user by email so I can get his user id
-  const getUserByEmail = async () => {
+  const getUserByEmail = useCallback(async () => {
     if (session?.user?.email) {
       
       apiClient.get(`/api/users/email/${session?.user?.email}`, {
@@ -93,11 +93,11 @@ const Header = () => {
           getWishlistByUserId(data?.id);
         });
     }
-  };
+  }, [session?.user?.email, getWishlistByUserId]);
 
   useEffect(() => {
     getUserByEmail();
-  }, [session?.user?.email, wishlist.length]);
+  }, [session?.user?.email, wishlist.length, getUserByEmail]);
 
   return (
     <header className="bg-white">

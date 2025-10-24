@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Filters on shop page
 // Name of the component: Filters.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <Filters />
 // Input parameters: no input parameters
@@ -51,7 +51,7 @@ const Filters = () => {
     params.set("sort", sortBy);
     params.set("page", page.toString());
     replace(`${pathname}?${params}`);
-  }, [inputCategory, sortBy, page]);
+  }, [inputCategory, sortBy, page, pathname, replace]);
 
   return (
     <div>

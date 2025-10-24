@@ -2,7 +2,7 @@
 // *********************
 // Role of the component: Product item component 
 // Name of the component: ProductItem.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <ProductItem product={product} color={color} />
 // Input parameters: { product: Product; color: string; }

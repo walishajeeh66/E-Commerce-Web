@@ -49,7 +49,7 @@ class MigrationValidator {
         try {
             // Get all table data using Prisma models directly
             let backupSQL = `-- Database backup created at ${new Date().toISOString()}\n`;
-            backupSQL += `-- WARNING: This is a basic backup. Use mysqldump for production!\n\n`;
+            backupSQL += `-- WARNING: This is a basic backup. Use pg_dump for production!\n\n`;
 
             // Backup each table using Prisma models
             const tables = ['user', 'product', 'category', 'customer_order', 'customer_order_product', 'wishlist'];

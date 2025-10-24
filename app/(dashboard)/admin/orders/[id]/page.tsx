@@ -314,15 +314,13 @@ const AdminSingleOrder = () => {
                   status: e.target.value as
                     | "processing"
                     | "delivered"
-                    | "cancelled"
-                    | "completed",
+                    | "canceled",
                 })
               }
             >
               <option value="processing">Processing</option>
               <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="completed">Completed</option>
+              <option value="canceled">Cancelled</option>
             </select>
           </label>
         </div>

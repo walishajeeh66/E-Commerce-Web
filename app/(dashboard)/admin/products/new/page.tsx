@@ -4,7 +4,7 @@ import apiClient from "@/lib/api";
 import { convertCategoryNameToURLFriendly as convertSlugToURLFriendly } from "@/utils/categoryFormating";
 import { sanitizeFormData } from "@/lib/form-sanitize";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 
 const AddNewProduct = () => {
@@ -89,7 +89,7 @@ const AddNewProduct = () => {
     }
   };
 
-  const fetchMerchants = async () => {
+  const fetchMerchants = useCallback(async () => {
     try {
       const res = await apiClient.get("/api/merchants");
       const data: Merchant[] = await res.json();
@@ -101,7 +101,7 @@ const AddNewProduct = () => {
     } catch (e) {
       toast.error("Failed to load merchants");
     }
-  };
+  }, []);
 
   const uploadFile = async (file: any) => {
     const formData = new FormData();
@@ -137,7 +137,7 @@ const AddNewProduct = () => {
     return filenames;
   };
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     apiClient.get(`/api/categories`)
       .then((res) => {
         return res.json();
@@ -156,12 +156,12 @@ const AddNewProduct = () => {
           categoryId: data[0]?.id,
         });
       });
-  };
+  }, [product.merchantId]);
 
   useEffect(() => {
     fetchCategories();
     fetchMerchants();
-  }, []);
+  }, [fetchCategories, fetchMerchants]);
 
   return (
     <div className="bg-white flex justify-start max-w-screen-2xl mx-auto xl:h-full max-xl:flex-col max-xl:gap-y-5">
@@ -207,7 +207,7 @@ const AddNewProduct = () => {
                 const files = e.target.files as FileList;
                 if (!files || files.length === 0) return;
                 const selected = Array.from(files).slice(0, 3);
-                const uploaded = await uploadAdditionalImages({ length: selected.length, item: (i:number)=>selected[i], ...selected } as any as FileList);
+                const uploaded = await uploadAdditionalImages(selected as any as FileList);
                 const combined = uploaded.slice(0, 3);
                 setAdditionalImages(combined.slice(1));
                 if (combined[0]) setProduct((prev:any) => ({ ...prev, mainImage: combined[0] }));

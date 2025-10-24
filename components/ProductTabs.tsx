@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Single product tabs on the single product page containing product description, main product info and reviews
 // Name of the component: ProductTabs.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <ProductTabs product={product} />
 // Input parameters: { product: Product }

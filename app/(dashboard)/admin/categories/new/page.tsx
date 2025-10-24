@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { convertCategoryNameToURLFriendly } from "../../../../../utils/categoryFormating";
 import apiClient from "@/lib/api";
+import Image from "next/image";
 
 const DashboardNewCategoryPage = () => {
   const [categoryInput, setCategoryInput] = useState({
@@ -97,7 +98,7 @@ const DashboardNewCategoryPage = () => {
             <div className="mt-3">
               <span className="text-sm text-gray-600">Uploaded:</span>
               <div className="mt-1">
-                <img src={`/${categoryInput.icon}`} alt="icon preview" width={48} height={48} />
+                <Image src={`/${categoryInput.icon}`} alt="icon preview" width={48} height={48} />
               </div>
             </div>
           )}

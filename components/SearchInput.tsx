@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Search input element located in the header but it can be used anywhere in your application
 // Name of the component: SearchInput.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <SearchInput />
 // Input parameters: no input parameters

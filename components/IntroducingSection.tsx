@@ -1,11 +1,11 @@
 // *********************
-// Role of the component: IntroducingSection with the text "Introducing Singitronic"
+// Role of the component: IntroducingSection with the text "Introducing Electronic Zone"
 // Name of the component: IntroducingSection.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <IntroducingSection />
 // Input parameters: no input parameters
-// Output: Section with the text "Introducing Singitronic" and button
+// Output: Section with the text "Introducing Electronic Zone" and button
 // *********************
 
 import Link from "next/link";

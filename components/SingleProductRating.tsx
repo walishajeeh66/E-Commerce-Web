@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Rating stars component that will display stars on the single product page 
 // Name of the component: SingleProductRating.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <SingleProductRating rating={rating} />
 // Input parameters: { rating: number }

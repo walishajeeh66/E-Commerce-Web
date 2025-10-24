@@ -12,14 +12,12 @@ async function searchProducts(request, response) {
                 OR: [
                     {
                         title: {
-                            contains: query,
-                            mode: 'insensitive'
+                            contains: query
                         }
                     },
                     {
                         description: {
-                            contains: query,
-                            mode: 'insensitive'
+                            contains: query
                         }
                     }
                 ]

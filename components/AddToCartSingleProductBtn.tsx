@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Button for adding product to the cart on the single product page
 // Name of the component: AddToCartSingleProductBtn.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <AddToCartSingleProductBtn product={product} quantityCount={quantityCount}  />
 // Input parameters: SingleProductBtnProps interface

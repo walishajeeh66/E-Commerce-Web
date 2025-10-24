@@ -2,7 +2,7 @@
 // *********************
 // Role of the component: Classical hero component on home page
 // Name of the component: Hero.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <Hero />
 // Input parameters: no input parameters

@@ -11,7 +11,6 @@ function normalizeBaseUrl(url: string): string {
 function withTimeout<T>(promise: Promise<T>, ms: number, url: string): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
-  // @ts-expect-error augment signal later
   (promise as any).signal = controller.signal;
   return new Promise<T>((resolve, reject) => {
     promise

@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Wishlist item component for wishlist page
 // Name of the component: WishItem.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <WishItem id={id} title={title} price={price} image={image} slug={slug} stockAvailabillity={stockAvailabillity} />
 // Input parameters: ProductInWishlist interface
@@ -13,7 +13,7 @@ import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import { revalidatePath } from "next/cache";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { FaHeartCrack } from "react-icons/fa6";
 import { deleteWishItem } from "@/app/actions";
@@ -42,7 +42,7 @@ const WishItem = ({
     router.push(`/product/${slug}`);
   };
 
-  const getUserByEmail = async () => {
+  const getUserByEmail = useCallback(async () => {
     if (session?.user?.email) {
       apiClient.get(`/api/users/email/${session?.user?.email}`, {
         cache: "no-store",
@@ -52,7 +52,7 @@ const WishItem = ({
           setUserId(data?.id);
         });
     }
-  };
+  }, [session?.user?.email]);
 
   const deleteItemFromWishlist = async (productId: string) => {
     if (userId) {
@@ -67,7 +67,7 @@ const WishItem = ({
 
   useEffect(() => {
     getUserByEmail();
-  }, [session?.user?.email]);
+  }, [session?.user?.email, getUserByEmail]);
 
   return (
     <tr className="hover:bg-gray-100 cursor-pointer">

@@ -67,7 +67,7 @@ Merchants API - Merchant management
 Images API - File upload and image management
 Slugs API - SEO-friendly URL generation
 Database & Data Management
-MySQL Database - Robust relational database
+PostgreSQL Database - Robust relational database
 Prisma ORM - Type-safe database operations
 Database Schema - Well-structured data models:
 Products, Categories, Users, Orders
@@ -121,7 +121,7 @@ Backend Technologies
 Node.js - Server runtime
 Express.js - Web framework
 Prisma - Database ORM
-MySQL - Database
+PostgreSQL - Database
 Bcrypt - Password hashing
 CORS - Cross-origin requests
 Express File Upload - File handling
@@ -137,7 +137,7 @@ This is a comprehensive, production-ready e-commerce platform with:
 ✅ Complete User Experience - Registration, browsing, shopping, checkout, wishlist, notifications
 ✅ Full Admin Dashboard - Product management, order processing, user administration, analytics
 ✅ Robust Backend - Secure APIs, database management, file handling, logging
-✅ Modern Tech Stack - Next.js, TypeScript, MySQL, Prisma, Express.js
+✅ Modern Tech Stack - Next.js, TypeScript, PostgreSQL, Prisma, Express.js
 ✅ Security Features - Rate limiting, authentication, input validation, CORS protection
 ✅ Professional Quality - Responsive design, error handling, performance optimization
 The project includes 350+ manually tested features with comprehensive documentation and follows software engineering best practices. It's suitable for both learning purposes and as a foundation for production e-commerce applications.

@@ -12,7 +12,7 @@ const prismaClientSingleton = () => {
     
     // Log SSL configuration for debugging
     if (process.env.NODE_ENV === "development") {
-        console.log(` Database connection: ${url.protocol}//${url.hostname}:${url.port || '3306'}`);
+        console.log(` Database connection: ${url.protocol}//${url.hostname}:${url.port || '5432'}`);
         console.log(`🔒 SSL Mode: ${url.searchParams.get('sslmode') || 'not specified'}`);
     }
 

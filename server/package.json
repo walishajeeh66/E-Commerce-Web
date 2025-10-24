@@ -1,5 +1,5 @@
 {
-  "name": "razvoj_veb_aplikacija",
+  "name": "wali-ecommerce-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -27,7 +27,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.3",
     "morgan": "^1.10.1",
-    "mysql": "^2.18.1",
+    "pg": "^8.11.3",
+    "@types/pg": "^8.10.9",
     "nanoid": "^5.1.6",
     "node-fetch": "^3.3.2",
     "prisma": "^5.12.1"

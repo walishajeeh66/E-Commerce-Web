@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Showing products on the shop page with applied filter and sort
 // Name of the component: Products.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <Products params={params} searchParams={searchParams} />
 // Input parameters: { params, searchParams }: { params: { slug?: string[] }, searchParams: { [key: string]: string | string[] | undefined } }

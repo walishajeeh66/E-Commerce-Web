@@ -1,7 +1,7 @@
 // *********************
 // Role of the component: Showing stars for the given rating number
 // Name of the component: ProductItemRating.tsx
-// Developer: Aleksandar Kuzmanovic
+// Developer: Wali E-commerce Team
 // Version: 1.0
 // Component call: <ProductItemRating productRating={productRating} />
 // Input parameters: { productRating: number }
