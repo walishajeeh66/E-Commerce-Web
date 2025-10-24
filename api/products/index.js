@@ -1,7 +1,13 @@
 // Vercel serverless function for products API
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+// Create a global prisma instance to avoid multiple connections
+const globalForPrisma = globalThis;
+const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
@@ -48,7 +54,7 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     console.error('Products API Error:', error);
     res.status(500).json({ error: error.message });
-  } finally {
-    await prisma.$disconnect();
   }
+  // Don't disconnect in serverless environment
+}
 }
