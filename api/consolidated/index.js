@@ -42,6 +42,24 @@ module.exports = async function handler(req, res) {
         }
         break;
 
+      case '/stats':
+        if (req.method === 'GET') {
+          // Return basic stats for admin dashboard
+          res.json({
+            totalOrders: 0,
+            pendingOrders: 0,
+            deliveredOrders: 0,
+            cancelledOrders: 0,
+            totalRevenue: 0,
+            profit: 0,
+            visitorsToday: 0,
+            totalProducts: 0
+          });
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
       case '/auth/providers':
         if (req.method === 'GET') {
           res.json({

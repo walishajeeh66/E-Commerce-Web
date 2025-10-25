@@ -10,7 +10,7 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await apiClient.get('/api/stats');
+        const res = await apiClient.get('/api/consolidated/stats');
         if (res.ok) {
           const data = await res.json();
           setStats(data);
