@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api";
 
 const CheckoutPage = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [checkoutForm, setCheckoutForm] = useState({
     name: "",
     lastname: "",
@@ -27,6 +27,17 @@ const CheckoutPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { products, total, clearCart } = useProductStore();
   const router = useRouter();
+
+  // Check authentication status
+  useEffect(() => {
+    if (status === "loading") return; // Still loading
+    
+    if (!session) {
+      toast.error("Please login first to place an order");
+      router.push("/login");
+      return;
+    }
+  }, [session, status, router]);
 
   // Add validation functions that match server requirements
   const validateForm = () => {
