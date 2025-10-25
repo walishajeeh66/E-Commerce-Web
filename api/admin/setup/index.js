@@ -50,17 +50,35 @@ module.exports = async function handler(req, res) {
 
     } else if (req.method === 'GET') {
       // Handle GET request - show admin setup form or info
-      res.json({ 
-        message: 'Admin Setup API',
-        instructions: 'Use POST method to create admin user',
-        example: {
-          method: 'POST',
-          body: {
-            email: 'admin@example.com',
-            password: 'admin123456'
+      try {
+        // Get all users and their roles
+        const users = await prisma.user.findMany({
+          select: {
+            id: true,
+            email: true,
+            role: true
           }
-        }
-      });
+        });
+
+        res.json({ 
+          message: 'Admin Setup API',
+          instructions: 'Use POST method to create admin user',
+          example: {
+            method: 'POST',
+            body: {
+              email: 'admin@example.com',
+              password: 'admin123456'
+            }
+          },
+          currentUsers: users
+        });
+      } catch (error) {
+        res.json({ 
+          message: 'Admin Setup API',
+          instructions: 'Use POST method to create admin user',
+          error: 'Could not fetch users'
+        });
+      }
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
