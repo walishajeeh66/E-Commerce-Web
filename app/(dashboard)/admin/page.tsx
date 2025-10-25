@@ -3,11 +3,33 @@ import { DashboardSidebar, StatsElement } from "@/components";
 import React, { useEffect, useState } from "react";
 import apiClient from "@/lib/api";
 import { FaArrowUp } from "react-icons/fa6";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const AdminDashboardPage = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [stats, setStats] = useState<{totalOrders:number;pendingOrders:number;deliveredOrders:number;cancelledOrders:number;totalRevenue:number;profit:number;visitorsToday:number}>({totalOrders:0,pendingOrders:0,deliveredOrders:0,cancelledOrders:0,totalRevenue:0,profit:0,visitorsToday:0});
 
   useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+    
+    if (session.user?.role !== "admin") {
+      router.push("/");
+      return;
+    }
+  }, [session, status, router]);
+
+  useEffect(() => {
+    if (status === "loading" || !session || session.user?.role !== "admin") {
+      return;
+    }
+    
     const load = async () => {
       try {
         const res = await apiClient.get('/api/consolidated/stats');
@@ -18,7 +40,19 @@ const AdminDashboardPage = () => {
       } catch {}
     };
     load();
-  }, []);
+  }, [session, status]);
+
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="loading loading-spinner loading-lg"></div>
+      </div>
+    );
+  }
+
+  if (!session || session.user?.role !== "admin") {
+    return null; // Will redirect in useEffect
+  }
 
   return (
     <div className="bg-white flex justify-start max-w-screen-2xl mx-auto max-xl:flex-col">
