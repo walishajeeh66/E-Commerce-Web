@@ -15,8 +15,8 @@ export async function GET() {
         }
       ],
       session: session ? {
-        user: session.user,
-        expires: session.expires
+        user: (session as any).user,
+        expires: (session as any).expires
       } : null
     });
   } catch (error) {
