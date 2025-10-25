@@ -33,6 +33,7 @@ const SearchPage = async ({ searchParams }: Props) => {
     }
   } catch (error) {
     console.error('Error fetching search results:', error);
+    // Ensure products is always an array to prevent rendering errors
     products = [];
   }
 

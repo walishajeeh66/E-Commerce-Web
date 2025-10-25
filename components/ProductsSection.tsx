@@ -28,6 +28,7 @@ const ProductsSection = async () => {
     });
   } catch (error) {
     console.error('Error fetching products:', error);
+    // Ensure products is always an array to prevent rendering errors
     products = [];
   }
 

@@ -67,7 +67,7 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
     }
     
     // Category filter
-    if (params?.slug?.length! > 0) {
+    if (Array.isArray(params?.slug) && params.slug.length > 0) {
       where.category = { name: params.slug[0] };
     }
 
@@ -87,6 +87,7 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
     });
   } catch (error) {
     console.error('Error fetching products:', error);
+    // Ensure products is always an array to prevent rendering errors
     products = [];
   }
 

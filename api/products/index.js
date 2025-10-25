@@ -59,7 +59,8 @@ module.exports = async function handler(req, res) {
     }
   } catch (error) {
     console.error('Products API Error:', error);
-    res.status(500).json({ error: error.message });
+    // Return empty array instead of error to prevent frontend crashes
+    res.json([]);
   } finally {
     await prisma.$disconnect();
   }
