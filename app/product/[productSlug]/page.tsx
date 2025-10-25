@@ -41,7 +41,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
   });
 
   // Direct database query for product images
-  let images = [];
+  let images: any[] = [];
   try {
     images = await prisma.image.findMany({
       where: {
