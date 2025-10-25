@@ -28,7 +28,7 @@ export const apiClient = {
   baseUrl: normalizeBaseUrl(config.apiBaseUrl),
   
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = this.baseUrl ? `${this.baseUrl}${endpoint}` : endpoint;
     const isFormData = options && options.body instanceof FormData;
     const defaultOptions: RequestInit = isFormData
       ? { headers: { ...options.headers } }

@@ -1,8 +1,4 @@
-// Vercel serverless function for categories API
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
-
+// Vercel serverless function for auth log API
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -19,23 +15,22 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    if (req.method === 'GET') {
-      // Use Prisma to fetch categories with correct field name (product, not products)
-      const categories = await prisma.category.findMany({
-        include: {
-          product: true  // Correct field name from schema
-        }
-      });
+    if (req.method === 'POST') {
+      // Handle authentication logging
+      const { action, userId, timestamp } = req.body;
       
-      res.json(categories);
+      // For now, just return success (in a real app, you'd log to database)
+      res.json({ 
+        success: true, 
+        message: 'Auth log recorded successfully',
+        data: { action, userId, timestamp }
+      });
     } else {
-      res.setHeader('Allow', ['GET']);
+      res.setHeader('Allow', ['POST']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
-    console.error('Categories API Error:', error);
+    console.error('Auth Log API Error:', error);
     res.status(500).json({ error: error.message });
-  } finally {
-    await prisma.$disconnect();
   }
-}
+};

@@ -1,13 +1,7 @@
 // Vercel serverless function for products API
 const { PrismaClient } = require('@prisma/client');
 
-// Create a global prisma instance to avoid multiple connections
-const globalForPrisma = globalThis;
-const prisma = globalForPrisma.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+const prisma = new PrismaClient();
 
 module.exports = async function handler(req, res) {
   // Set CORS headers
@@ -25,36 +19,48 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    switch (req.method) {
-      case 'GET':
-        const products = await prisma.product.findMany({
-          include: {
-            category: true,
-            merchant: true
-          }
-        });
-        res.json(products);
-        break;
-
-      case 'POST':
-        const newProduct = await prisma.product.create({
-          data: req.body,
-          include: {
-            category: true,
-            merchant: true
-          }
-        });
-        res.status(201).json(newProduct);
-        break;
-
-      default:
-        res.setHeader('Allow', ['GET', 'POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+    if (req.method === 'GET') {
+      // Parse query parameters
+      const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
+      const mode = searchParams.get('mode');
+      const page = parseInt(searchParams.get('page') || '1');
+      const limit = parseInt(searchParams.get('limit') || '10');
+      const category = searchParams.get('category');
+      const search = searchParams.get('search');
+      
+      // Build where clause
+      const where = {};
+      if (category) {
+        where.category = { name: category };
+      }
+      if (search) {
+        where.OR = [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
+        ];
+      }
+      
+      // Fetch products with relations
+      const products = await prisma.product.findMany({
+        where,
+        include: {
+          category: true,
+          merchant: true
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { id: 'desc' }
+      });
+      
+      res.json(products);
+    } else {
+      res.setHeader('Allow', ['GET']);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
     console.error('Products API Error:', error);
     res.status(500).json({ error: error.message });
+  } finally {
+    await prisma.$disconnect();
   }
-  // Don't disconnect in serverless environment
-}
 }

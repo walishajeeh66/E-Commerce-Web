@@ -1,8 +1,4 @@
-// Vercel serverless function for categories API
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
-
+// Vercel serverless function for auth session API
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,22 +16,15 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Use Prisma to fetch categories with correct field name (product, not products)
-      const categories = await prisma.category.findMany({
-        include: {
-          product: true  // Correct field name from schema
-        }
-      });
-      
-      res.json(categories);
+      // For now, return null session (no authentication)
+      // In a real app, you'd check for valid session tokens
+      res.json({ user: null, session: null });
     } else {
       res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
-    console.error('Categories API Error:', error);
+    console.error('Auth Session API Error:', error);
     res.status(500).json({ error: error.message });
-  } finally {
-    await prisma.$disconnect();
   }
-}
+};
