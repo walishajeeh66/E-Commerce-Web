@@ -19,14 +19,14 @@ const AdminDashboardPage = () => {
       return;
     }
     
-    if (session.user?.role !== "admin") {
+    if ((session.user as any)?.role !== "admin") {
       router.push("/");
       return;
     }
   }, [session, status, router]);
 
   useEffect(() => {
-    if (status === "loading" || !session || session.user?.role !== "admin") {
+    if (status === "loading" || !session || (session.user as any)?.role !== "admin") {
       return;
     }
     
@@ -50,7 +50,7 @@ const AdminDashboardPage = () => {
     );
   }
 
-  if (!session || session.user?.role !== "admin") {
+  if (!session || (session.user as any)?.role !== "admin") {
     return null; // Will redirect in useEffect
   }
 
