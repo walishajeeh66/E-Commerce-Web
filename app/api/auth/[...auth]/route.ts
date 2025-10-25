@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error });
   }
   
-  return NextResponse.json({ error: 'Auth endpoint not found' }, { status: 404 });
+  // Default response for any other auth endpoint
+  return NextResponse.json({ message: 'Auth endpoint', pathname });
 }
 
 export async function POST(request: NextRequest) {

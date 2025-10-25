@@ -13,8 +13,8 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  if (req.method === 'POST') {
-    try {
+  try {
+    if (req.method === 'POST') {
       const { email, password } = req.body;
 
       if (!email || !password) {
@@ -48,12 +48,12 @@ module.exports = async function handler(req, res) {
         role: admin.role
       });
 
-    } catch (error) {
-      console.error('Admin setup error:', error);
-      res.status(500).json({ error: 'Failed to create admin user' });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
     }
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('Admin setup error:', error);
+    res.status(500).json({ error: 'Failed to create admin user' });
   } finally {
     await prisma.$disconnect();
   }
