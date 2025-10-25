@@ -21,25 +21,23 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials: any) {
         try {
-          console.log("Authorize called with email:", credentials.email);
-          
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+
           const user = await prisma.user.findFirst({
             where: {
               email: credentials.email,
             },
           });
           
-          console.log("User found:", user ? "Yes" : "No");
-          
-          if (user) {
+          if (user && user.password) {
             const isPasswordCorrect = await bcrypt.compare(
               credentials.password,
-              user.password!
+              user.password
             );
-            console.log("Password correct:", isPasswordCorrect);
             
             if (isPasswordCorrect) {
-              console.log("Returning user:", { id: user.id, email: user.email, role: user.role });
               return {
                 id: user.id,
                 email: user.email,
@@ -49,9 +47,8 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (err: any) {
           console.error("Authorize error:", err);
-          throw new Error(err);
+          return null;
         }
-        console.log("Authorization failed");
         return null;
       },
     }),
@@ -103,34 +100,18 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }: { token: any; user: any }) {
-      console.log("JWT callback called with user:", user);
       if (user) {
         token.role = user.role;
         token.id = user.id;
-        token.iat = Math.floor(Date.now() / 1000); // Issued at time
-        console.log("JWT token updated:", { role: token.role, id: token.id });
+        token.iat = Math.floor(Date.now() / 1000);
       }
-      
-      // Check if token is expired (24 hours)
-      const now = Math.floor(Date.now() / 1000);
-      const tokenAge = now - (token.iat as number);
-      const maxAge = 24 * 60 * 60; // 24 hours
-      
-      if (tokenAge > maxAge) {
-        // Token expired, return empty object to force re-authentication
-        return {};
-      }
-      
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      console.log("Session callback called with token:", token);
       if (token) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
-        console.log("Session updated with role:", token.role);
       }
-      console.log("Final session:", session);
       return session;
     },
   },
