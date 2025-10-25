@@ -10,7 +10,7 @@
 
 import React from "react";
 import ProductItem from "./ProductItem";
-import apiClient from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 const Products = async ({ params, searchParams }: { params: { slug?: string[] }, searchParams: { [key: string]: string | string[] | undefined } }) => {
   // getting all data from URL slug and preparing everything for sending GET request
@@ -38,33 +38,53 @@ const Products = async ({ params, searchParams }: { params: { slug?: string[] },
     stockMode = "gt";
   }
 
-  let products = [];
+  let products: any[] = [];
 
   try {
-    // Build price filter from buckets
+    // Build where clause for Prisma query
+    const where: any = {};
+    
+    // Price filter
     const priceBucket = (searchParams?.priceBucket as string) || 'all';
-    let priceQuery = '';
-    if (priceBucket === '0-1000') priceQuery = 'filters[price][$gte]=0&filters[price][$lte]=1000&';
-    if (priceBucket === '1000-2000') priceQuery = 'filters[price][$gte]=1000&filters[price][$lte]=2000&';
-    if (priceBucket === '3000+') priceQuery = 'filters[price][$gte]=3000&';
-
-    // sending API request with filtering, sorting and pagination for getting all products
-    const data = await apiClient.get(`/api/products?${priceQuery}filters[rating][$gte]=${
-        Number(searchParams?.rating) || 0
-      }&filters[inStock][$${stockMode}]=1&${
-        params?.slug?.length! > 0
-          ? `filters[category][$equals]=${params?.slug}&`
-          : ""
-      }sort=${searchParams?.sort}&page=${page}`
-    );
-
-    if (!data.ok) {
-      console.error('Failed to fetch products:', data.statusText);
-      products = [];
-    } else {
-      const result = await data.json();
-      products = Array.isArray(result) ? result : [];
+    if (priceBucket === '0-1000') {
+      where.price = { gte: 0, lte: 1000 };
+    } else if (priceBucket === '1000-2000') {
+      where.price = { gte: 1000, lte: 2000 };
+    } else if (priceBucket === '3000+') {
+      where.price = { gte: 3000 };
     }
+    
+    // Rating filter
+    if (searchParams?.rating) {
+      where.rating = { gte: Number(searchParams.rating) };
+    }
+    
+    // Stock filter
+    if (stockMode === 'gt') {
+      where.inStock = { gt: 1 };
+    } else if (stockMode === 'lte') {
+      where.inStock = { lte: 1 };
+    }
+    
+    // Category filter
+    if (params?.slug?.length! > 0) {
+      where.category = { name: params.slug[0] };
+    }
+
+    // Direct database query instead of API call
+    products = await prisma.product.findMany({
+      where,
+      include: {
+        category: true,
+        merchant: true
+      },
+      skip: (page - 1) * 12,
+      take: 12,
+      orderBy: searchParams?.sort === 'price-asc' ? { price: 'asc' } : 
+               searchParams?.sort === 'price-desc' ? { price: 'desc' } : 
+               searchParams?.sort === 'rating' ? { rating: 'desc' } : 
+               { id: 'desc' }
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     products = [];
