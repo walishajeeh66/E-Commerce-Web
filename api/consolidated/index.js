@@ -80,30 +80,6 @@ module.exports = async function handler(req, res) {
         }
         break;
 
-      case '/auth/signin':
-        if (req.method === 'GET') {
-          res.redirect('/login');
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
-
-      case '/auth/signout':
-        if (req.method === 'GET' || req.method === 'POST') {
-          res.redirect('/login');
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
-
-      case '/auth/csrf':
-        if (req.method === 'GET') {
-          const token = Math.random().toString(36).substring(2, 15);
-          res.json({ csrfToken: token });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
 
       default:
         res.status(404).json({ error: 'Endpoint not found', pathname, endpoint });
