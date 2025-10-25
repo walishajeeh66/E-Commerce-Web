@@ -3,6 +3,24 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  return NextResponse.json(session);
+  try {
+    const session = await getServerSession(authOptions);
+    console.log("Session endpoint called, session:", session);
+    return NextResponse.json({
+      session: session,
+      timestamp: new Date().toISOString(),
+      debug: {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userRole: session?.user?.role,
+        userId: session?.user?.id
+      }
+    });
+  } catch (error) {
+    console.error("Session error:", error);
+    return NextResponse.json({ 
+      error: "Session error",
+      details: error.message 
+    }, { status: 500 });
+  }
 }

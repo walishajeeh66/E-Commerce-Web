@@ -6,7 +6,7 @@ import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
-import prisma from "@/utils/db";
+import { prisma } from "@/lib/prisma";
 import { nanoid } from "nanoid";
 
 export const authOptions: NextAuthOptions = {
@@ -21,17 +21,25 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials: any) {
         try {
+          console.log("Authorize called with email:", credentials.email);
+          
           const user = await prisma.user.findFirst({
             where: {
               email: credentials.email,
             },
           });
+          
+          console.log("User found:", user ? "Yes" : "No");
+          
           if (user) {
             const isPasswordCorrect = await bcrypt.compare(
               credentials.password,
               user.password!
             );
+            console.log("Password correct:", isPasswordCorrect);
+            
             if (isPasswordCorrect) {
+              console.log("Returning user:", { id: user.id, email: user.email, role: user.role });
               return {
                 id: user.id,
                 email: user.email,
@@ -40,8 +48,10 @@ export const authOptions: NextAuthOptions = {
             }
           }
         } catch (err: any) {
+          console.error("Authorize error:", err);
           throw new Error(err);
         }
+        console.log("Authorization failed");
         return null;
       },
     }),
@@ -93,10 +103,12 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }: { token: any; user: any }) {
+      console.log("JWT callback called with user:", user);
       if (user) {
         token.role = user.role;
         token.id = user.id;
         token.iat = Math.floor(Date.now() / 1000); // Issued at time
+        console.log("JWT token updated:", { role: token.role, id: token.id });
       }
       
       // Check if token is expired (24 hours)
@@ -112,10 +124,13 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
+      console.log("Session callback called with token:", token);
       if (token) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
+        console.log("Session updated with role:", token.role);
       }
+      console.log("Final session:", session);
       return session;
     },
   },
