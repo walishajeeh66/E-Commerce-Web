@@ -10,7 +10,7 @@ interface Props {
 // Direct database query for search results
 const SearchPage = async ({ searchParams }: Props) => {
   const sp = await searchParams;
-  let products = [];
+  let products: any[] = [];
 
   try {
     const query = typeof sp?.search === 'string' ? sp.search.trim() : '';
