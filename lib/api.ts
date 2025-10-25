@@ -33,13 +33,15 @@ export const apiClient = {
     if (this.baseUrl) {
       url = `${this.baseUrl}${endpoint}`;
     } else {
-      // For Vercel, use absolute URL with current origin
+      // For Vercel, construct absolute URL
       if (typeof window !== 'undefined') {
         // Client-side: use current origin
         url = `${window.location.origin}${endpoint}`;
       } else {
-        // Server-side: use relative URL (Next.js will handle it)
-        url = endpoint;
+        // Server-side: construct absolute URL using environment variables
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+        url = `${baseUrl}${endpoint}`;
       }
     }
     const isFormData = options && options.body instanceof FormData;

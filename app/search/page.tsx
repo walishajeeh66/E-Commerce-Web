@@ -1,5 +1,5 @@
 import { ProductItem, SectionTitle } from "@/components";
-import apiClient from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import React from "react";
 import { sanitize } from "@/lib/sanitize";
 
@@ -7,7 +7,7 @@ interface Props {
   searchParams: Promise<{ search: string }>;
 }
 
-// sending api request for search results for a given search text
+// Direct database query for search results
 const SearchPage = async ({ searchParams }: Props) => {
   const sp = await searchParams;
   let products = [];
@@ -17,17 +17,19 @@ const SearchPage = async ({ searchParams }: Props) => {
     if (!query) {
       products = [];
     } else {
-      const data = await apiClient.get(
-        `/api/search?query=${encodeURIComponent(query)}`
-      );
-
-      if (!data.ok) {
-        console.error('Failed to fetch search results:', data.statusText);
-        products = [];
-      } else {
-        const result = await data.json();
-        products = Array.isArray(result) ? result : [];
-      }
+      // Direct database search instead of API call
+      products = await prisma.product.findMany({
+        where: {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } }
+          ]
+        },
+        include: {
+          category: true,
+          merchant: true
+        }
+      });
     }
   } catch (error) {
     console.error('Error fetching search results:', error);

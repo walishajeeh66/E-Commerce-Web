@@ -6,7 +6,7 @@ import {
   SingleProductDynamicFields,
   AddToWishlistBtn,
 } from "@/components";
-import apiClient from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import ProductGallery from "@/components/ProductGallery";
 import { notFound } from "next/navigation";
@@ -28,19 +28,26 @@ interface SingleProductPageProps {
 
 const SingleProductPage = async ({ params }: SingleProductPageProps) => {
   const paramsAwaited = await params;
-  // sending API request for a single product with a given product slug
-  const data = await apiClient.get(
-    `/api/slugs/${paramsAwaited?.productSlug}`
-  );
-  const product = await data.json();
+  
+  // Direct database query instead of API call
+  const product = await prisma.product.findUnique({
+    where: {
+      slug: paramsAwaited?.productSlug
+    },
+    include: {
+      category: true,
+      merchant: true
+    }
+  });
 
-  // sending API request for more than 1 product image if it exists
-  const imagesData = await apiClient.get(
-    `/api/images/${product?.id}`
-  );
-  const images = await imagesData.json();
+  // Direct database query for product images
+  const images = await prisma.image.findMany({
+    where: {
+      productID: product?.id
+    }
+  });
 
-  if (!product || product.error) {
+  if (!product) {
     notFound();
   }
 
