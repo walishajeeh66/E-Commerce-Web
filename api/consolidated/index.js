@@ -12,8 +12,12 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const { pathname } = new URL(req.url);
-  const endpoint = pathname.replace('/api/consolidated', '');
+  // Get the path from the request
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+  
+  // Extract the endpoint after /api/consolidated
+  const endpoint = pathname.replace('/api/consolidated', '') || '/';
 
   try {
     switch (endpoint) {
@@ -53,8 +57,31 @@ module.exports = async function handler(req, res) {
         }
         break;
 
+      case '/auth/providers':
+        if (req.method === 'GET') {
+          res.json({
+            credentials: {
+              id: "credentials",
+              name: "Credentials",
+              type: "credentials"
+            }
+          });
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/auth/error':
+        if (req.method === 'GET') {
+          const error = req.query.error || 'default';
+          res.status(200).json({ error });
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
       default:
-        res.status(404).json({ error: 'Endpoint not found' });
+        res.status(404).json({ error: 'Endpoint not found', pathname, endpoint });
     }
   } catch (error) {
     console.error('Consolidated API Error:', error);
