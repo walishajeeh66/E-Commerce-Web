@@ -33,21 +33,6 @@ module.exports = async function handler(req, res) {
         }
         break;
 
-      case '/auth/session':
-        if (req.method === 'GET') {
-          res.json({ user: null, authenticated: false });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
-
-      case '/auth/_log':
-        if (req.method === 'POST') {
-          res.json({ success: true, message: 'Log recorded' });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
 
       case '/health':
         if (req.method === 'GET') {
@@ -71,36 +56,6 @@ module.exports = async function handler(req, res) {
         }
         break;
 
-      case '/auth/error':
-        if (req.method === 'GET') {
-          const error = req.query.error || 'default';
-          res.status(200).json({ error });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
-
-      case '/auth/providers':
-        if (req.method === 'GET') {
-          res.json({
-            credentials: {
-              id: "credentials",
-              name: "Credentials",
-              type: "credentials"
-            }
-          });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
-
-      case '/auth/_log':
-        if (req.method === 'POST') {
-          res.json({ success: true, message: 'Log recorded' });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
 
 
       default:
