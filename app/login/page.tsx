@@ -57,6 +57,7 @@ const LoginPage = () => {
     } else {
       setError("");
       toast.success("Successful login");
+      router.push("/"); // Redirect to home page after successful login
     }
   };
 
