@@ -11,9 +11,9 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
       debug: {
         hasSession: !!session,
-        hasUser: !!session?.user,
-        userRole: session?.user?.role,
-        userId: session?.user?.id
+        hasUser: !!(session as any)?.user,
+        userRole: (session as any)?.user?.role,
+        userId: (session as any)?.user?.id
       }
     });
   } catch (error) {
