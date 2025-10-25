@@ -12,7 +12,7 @@ const AdminHeroPage = () => {
 
   useEffect(() => {
     let mounted = true;
-    apiClient.get('/api/hero').then(async (res) => {
+    apiClient.get('/api/consolidated/hero').then(async (res) => {
       if (!res.ok) return;
       const data = await res.json();
       if (mounted && data) setForm(data);
@@ -42,7 +42,7 @@ const AdminHeroPage = () => {
   const saveHero = async () => {
     setSaving(true);
     try {
-      const res = await apiClient.post('/api/hero', form);
+      const res = await apiClient.post('/api/consolidated/hero', form);
       if (!res.ok) throw new Error("Save failed");
       toast.success("Hero saved");
     } catch {
