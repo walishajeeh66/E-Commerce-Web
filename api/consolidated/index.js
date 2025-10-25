@@ -16,8 +16,11 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
   
-  // Extract the endpoint after /api/consolidated
-  const endpoint = pathname.replace('/api/consolidated', '') || '/';
+  // Extract the endpoint after /api/consolidated or from query parameter
+  let endpoint = pathname.replace('/api/consolidated', '') || '/';
+  if (endpoint === '/' && url.searchParams.get('endpoint')) {
+    endpoint = '/' + url.searchParams.get('endpoint');
+  }
 
   try {
     switch (endpoint) {

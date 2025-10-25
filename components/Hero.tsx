@@ -18,7 +18,7 @@ const Hero = () => {
   const [hero, setHero] = useState<any>(null);
   useEffect(() => {
     let mounted = true;
-    apiClient.get('/api/consolidated/hero').then(async (res) => {
+    apiClient.get('/api/consolidated?endpoint=hero').then(async (res) => {
       if (!res.ok) return;
       const data = await res.json();
       if (mounted) setHero(data || null);
