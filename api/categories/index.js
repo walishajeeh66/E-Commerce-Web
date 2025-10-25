@@ -1,4 +1,8 @@
 // Vercel serverless function for categories API
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
+
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -16,35 +20,14 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Return mock categories data for now (until database is properly configured)
-      const mockCategories = [
-        {
-          id: '1',
-          name: 'Electronics',
-          icon: 'electronics-icon',
-          product: []
-        },
-        {
-          id: '2',
-          name: 'Gadgets',
-          icon: 'gadgets-icon',
-          product: []
-        },
-        {
-          id: '3',
-          name: 'Computers',
-          icon: 'computers-icon',
-          product: []
-        },
-        {
-          id: '4',
-          name: 'Dashcams',
-          icon: 'dashcams-icon',
-          product: []
+      // Use Prisma to fetch categories with correct field name (product, not products)
+      const categories = await prisma.category.findMany({
+        include: {
+          product: true  // Correct field name from schema
         }
-      ];
+      });
       
-      res.json(mockCategories);
+      res.json(categories);
     } else {
       res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -52,5 +35,7 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     console.error('Categories API Error:', error);
     res.status(500).json({ error: error.message });
+  } finally {
+    await prisma.$disconnect();
   }
 }

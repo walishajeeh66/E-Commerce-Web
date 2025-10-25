@@ -28,13 +28,19 @@ export const apiClient = {
   baseUrl: normalizeBaseUrl(config.apiBaseUrl),
   
   async request(endpoint: string, options: RequestInit = {}) {
-    // Ensure we have a proper URL - use window.location.origin for client-side, or construct absolute URL
+    // Construct proper URL for Vercel deployment
     let url: string;
     if (this.baseUrl) {
       url = `${this.baseUrl}${endpoint}`;
     } else {
-      // For Vercel deployment, use relative URLs that will be resolved by the browser
-      url = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+      // For Vercel, use absolute URL with current origin
+      if (typeof window !== 'undefined') {
+        // Client-side: use current origin
+        url = `${window.location.origin}${endpoint}`;
+      } else {
+        // Server-side: use relative URL (Next.js will handle it)
+        url = endpoint;
+      }
     }
     const isFormData = options && options.body instanceof FormData;
     const defaultOptions: RequestInit = isFormData
