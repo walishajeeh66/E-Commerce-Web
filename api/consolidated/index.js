@@ -80,6 +80,28 @@ module.exports = async function handler(req, res) {
         }
         break;
 
+      case '/auth/providers':
+        if (req.method === 'GET') {
+          res.json({
+            credentials: {
+              id: "credentials",
+              name: "Credentials",
+              type: "credentials"
+            }
+          });
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/auth/_log':
+        if (req.method === 'POST') {
+          res.json({ success: true, message: 'Log recorded' });
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
 
       default:
         res.status(404).json({ error: 'Endpoint not found', pathname, endpoint });
