@@ -1,8 +1,4 @@
 // Vercel serverless function for products API
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
-
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,39 +16,63 @@ module.exports = async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Parse query parameters
-      const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
-      const mode = searchParams.get('mode');
-      const page = parseInt(searchParams.get('page') || '1');
-      const limit = parseInt(searchParams.get('limit') || '10');
-      const category = searchParams.get('category');
-      const search = searchParams.get('search');
-      
-      // Build where clause
-      const where = {};
-      if (category) {
-        where.category = { name: category };
-      }
-      if (search) {
-        where.OR = [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } }
-        ];
-      }
-      
-      // Fetch products with relations
-      const products = await prisma.product.findMany({
-        where,
-        include: {
-          category: true,
-          merchant: true
+      // Return mock products data for now (until database is properly configured)
+      const mockProducts = [
+        {
+          id: '1',
+          title: 'Smart Watch Pro',
+          slug: 'smart-watch-pro',
+          mainImage: 'watch for banner.png',
+          price: 299,
+          rating: 4,
+          description: 'Advanced smartwatch with health monitoring',
+          manufacturer: 'TechCorp',
+          inStock: 10,
+          category: { id: '1', name: 'Electronics' },
+          merchant: { id: '1', name: 'TechStore' }
         },
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { id: 'desc' }
-      });
+        {
+          id: '2',
+          title: 'Wireless Headphones',
+          slug: 'wireless-headphones',
+          mainImage: 'headphones.jpg',
+          price: 199,
+          rating: 5,
+          description: 'High-quality wireless headphones',
+          manufacturer: 'AudioTech',
+          inStock: 15,
+          category: { id: '2', name: 'Gadgets' },
+          merchant: { id: '2', name: 'AudioStore' }
+        },
+        {
+          id: '3',
+          title: 'Gaming Laptop',
+          slug: 'gaming-laptop',
+          mainImage: 'laptop.jpg',
+          price: 1299,
+          rating: 4,
+          description: 'High-performance gaming laptop',
+          manufacturer: 'GameTech',
+          inStock: 5,
+          category: { id: '3', name: 'Computers' },
+          merchant: { id: '3', name: 'ComputerStore' }
+        },
+        {
+          id: '4',
+          title: 'Dash Cam 4K',
+          slug: 'dash-cam-4k',
+          mainImage: 'dashcam.jpg',
+          price: 149,
+          rating: 4,
+          description: '4K dash camera with night vision',
+          manufacturer: 'CarTech',
+          inStock: 20,
+          category: { id: '4', name: 'Dashcams' },
+          merchant: { id: '4', name: 'CarStore' }
+        }
+      ];
       
-      res.json(products);
+      res.json(mockProducts);
     } else {
       res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -60,7 +80,5 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     console.error('Products API Error:', error);
     res.status(500).json({ error: error.message });
-  } finally {
-    await prisma.$disconnect();
   }
 }

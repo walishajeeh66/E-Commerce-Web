@@ -28,7 +28,14 @@ export const apiClient = {
   baseUrl: normalizeBaseUrl(config.apiBaseUrl),
   
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = this.baseUrl ? `${this.baseUrl}${endpoint}` : endpoint;
+    // Ensure we have a proper URL - use window.location.origin for client-side, or construct absolute URL
+    let url: string;
+    if (this.baseUrl) {
+      url = `${this.baseUrl}${endpoint}`;
+    } else {
+      // For Vercel deployment, use relative URLs that will be resolved by the browser
+      url = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    }
     const isFormData = options && options.body instanceof FormData;
     const defaultOptions: RequestInit = isFormData
       ? { headers: { ...options.headers } }
