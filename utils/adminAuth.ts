@@ -14,3 +14,10 @@ export async function requireAdmin() {
   }
   
   return session;
+}
+
+export async function isAdmin(): Promise<boolean> {
+  const session = await getServerSession(authOptions);
+  return (session as any)?.user?.role === "admin";
+}
+
