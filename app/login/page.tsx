@@ -44,11 +44,14 @@ const LoginPage = () => {
       return;
     }
 
+    console.log("Attempting login with email:", email);
     const res = await signIn("credentials", {
       redirect: false,
       email,
       password,
     });
+    
+    console.log("SignIn result:", res);
 
     if (res?.error) {
       setError("Invalid email or password");
