@@ -63,6 +63,51 @@ module.exports = async function handler(req, res) {
         }
         break;
 
+      case '/merchants':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const merchants = await prisma.merchant.findMany({
+              orderBy: { createdAt: 'desc' }
+            });
+            res.json(merchants);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/users':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const users = await prisma.user.findMany({
+              select: {
+                id: true,
+                email: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true
+              },
+              orderBy: { createdAt: 'desc' }
+            });
+            res.json(users);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
       case '/auth/providers':
         if (req.method === 'GET') {
           res.json({
