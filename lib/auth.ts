@@ -120,13 +120,13 @@ export const authOptions: NextAuthOptions = {
     error: '/login', // Redirect to login page on auth errors
   },
   events: {
-    async signIn({ user, account, profile, isNewUser }) {
+    async signIn({ user, account, profile, isNewUser }: { user: any; account: any; profile: any; isNewUser: boolean }) {
       console.log('Sign in event:', { user, account, profile, isNewUser });
     },
-    async signOut({ token, session }) {
+    async signOut({ token, session }: { token: any; session: any }) {
       console.log('Sign out event:', { token, session });
     },
-    async error({ error }) {
+    async error({ error }: { error: any }) {
       console.log('Auth error event:', error);
     },
   },
