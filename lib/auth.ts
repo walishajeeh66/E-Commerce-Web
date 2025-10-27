@@ -9,10 +9,6 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { nanoid } from "nanoid";
 
-// Debug environment variables
-console.log("NEXTAUTH_SECRET exists:", !!process.env.NEXTAUTH_SECRET);
-console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   providers: [
@@ -25,10 +21,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials: any) {
         try {
-          console.log("Authorize called with email:", credentials?.email);
-          
           if (!credentials?.email || !credentials?.password) {
-            console.log("Missing credentials");
             return null;
           }
 
@@ -38,17 +31,13 @@ export const authOptions: NextAuthOptions = {
             },
           });
           
-          console.log("User found:", user ? "Yes" : "No");
-          
           if (user && user.password) {
             const isPasswordCorrect = await bcrypt.compare(
               credentials.password,
               user.password
             );
-            console.log("Password correct:", isPasswordCorrect);
             
             if (isPasswordCorrect) {
-              console.log("Returning user:", { id: user.id, email: user.email, role: user.role });
               return {
                 id: user.id,
                 email: user.email,
@@ -60,7 +49,6 @@ export const authOptions: NextAuthOptions = {
           console.error("Authorize error:", err);
           return null;
         }
-        console.log("Authorization failed");
         return null;
       },
     }),
@@ -112,25 +100,18 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }: { token: any; user: any }) {
-      console.log("JWT callback - user:", user);
       if (user) {
         token.role = user.role;
         token.id = user.id;
         token.iat = Math.floor(Date.now() / 1000);
-        console.log("JWT token updated:", { role: token.role, id: token.id });
       }
-      console.log("JWT token:", token);
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      console.log("Session callback - token:", token);
-      console.log("Session callback - session:", session);
       if (token) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
-        console.log("Session updated with role:", token.role);
       }
-      console.log("Final session:", session);
       return session;
     },
   },

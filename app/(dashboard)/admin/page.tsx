@@ -12,24 +12,17 @@ const AdminDashboardPage = () => {
   const [stats, setStats] = useState<{totalOrders:number;pendingOrders:number;deliveredOrders:number;cancelledOrders:number;totalRevenue:number;profit:number;visitorsToday:number}>({totalOrders:0,pendingOrders:0,deliveredOrders:0,cancelledOrders:0,totalRevenue:0,profit:0,visitorsToday:0});
 
   useEffect(() => {
-    console.log("Admin page - status:", status);
-    console.log("Admin page - session:", session);
-    
     if (status === "loading") return;
     
     if (!session) {
-      console.log("No session, redirecting to login");
       router.push("/login");
       return;
     }
     
     if ((session.user as any)?.role !== "admin") {
-      console.log("Not admin role, redirecting to home. Role:", (session.user as any)?.role);
       router.push("/");
       return;
     }
-    
-    console.log("Admin access granted");
   }, [session, status, router]);
 
   useEffect(() => {
