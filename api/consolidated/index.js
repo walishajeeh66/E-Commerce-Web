@@ -108,19 +108,6 @@ module.exports = async function handler(req, res) {
         }
         break;
 
-      case '/auth/providers':
-        if (req.method === 'GET') {
-          res.json({
-            credentials: {
-              id: "credentials",
-              name: "Credentials",
-              type: "credentials"
-            }
-          });
-        } else {
-          res.status(405).json({ error: 'Method not allowed' });
-        }
-        break;
 
 
 

@@ -119,6 +119,17 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/login', // Redirect to login page on auth errors
   },
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('Sign in event:', { user, account, profile, isNewUser });
+    },
+    async signOut({ token, session }) {
+      console.log('Sign out event:', { token, session });
+    },
+    async error({ error }) {
+      console.log('Auth error event:', error);
+    },
+  },
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours in seconds
@@ -129,4 +140,6 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
+  // Ensure proper URL handling for production
+  url: process.env.NEXTAUTH_URL,
 };
