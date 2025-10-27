@@ -160,6 +160,262 @@ module.exports = async function handler(req, res) {
         }
         break;
 
+      case '/products':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            // Parse query parameters
+            const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
+            const mode = searchParams.get('mode');
+            const page = parseInt(searchParams.get('page') || '1');
+            const limit = parseInt(searchParams.get('limit') || '10');
+            const category = searchParams.get('category');
+            const search = searchParams.get('search');
+            
+            // Build where clause
+            const where = {};
+            if (category) {
+              where.category = { name: category };
+            }
+            if (search) {
+              where.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } }
+              ];
+            }
+            
+            // Fetch products with relations
+            const products = await prisma.product.findMany({
+              where,
+              include: {
+                category: true,
+                merchant: true
+              },
+              skip: (page - 1) * limit,
+              take: limit,
+              orderBy: { id: 'desc' }
+            });
+            
+            res.json(products);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else if (req.method === 'POST') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const productData = req.body;
+            
+            const product = await prisma.product.create({
+              data: productData,
+              include: {
+                category: true,
+                merchant: true
+              }
+            });
+            
+            res.json(product);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/categories':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const categories = await prisma.category.findMany({
+              include: {
+                product: true
+              }
+            });
+            res.json(categories);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else if (req.method === 'POST') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const { name, description, image } = req.body;
+            
+            const category = await prisma.category.create({
+              data: {
+                name,
+                description,
+                image
+              }
+            });
+            
+            res.json(category);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/orders':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
+            const userId = searchParams.get('userId');
+            const status = searchParams.get('status');
+            
+            const where = {};
+            if (userId) {
+              where.userId = userId;
+            }
+            if (status) {
+              where.status = status;
+            }
+            
+            const orders = await prisma.order.findMany({
+              where,
+              include: {
+                orderItems: {
+                  include: {
+                    product: true
+                  }
+                },
+                user: {
+                  select: {
+                    id: true,
+                    email: true
+                  }
+                }
+              },
+              orderBy: { createdAt: 'desc' }
+            });
+            
+            res.json(orders);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else if (req.method === 'POST') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const { userId, items, totalAmount, shippingAddress, paymentMethod } = req.body;
+            
+            // Create order
+            const order = await prisma.order.create({
+              data: {
+                userId,
+                totalAmount,
+                status: 'pending',
+                shippingAddress,
+                paymentMethod
+              }
+            });
+            
+            // Create order items
+            const orderItems = await Promise.all(
+              items.map((item) =>
+                prisma.orderItem.create({
+                  data: {
+                    orderId: order.id,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price
+                  }
+                })
+              )
+            );
+            
+            // Update order with items
+            const orderWithItems = await prisma.order.findUnique({
+              where: { id: order.id },
+              include: {
+                orderItems: {
+                  include: {
+                    product: true
+                  }
+                },
+                user: {
+                  select: {
+                    id: true,
+                    email: true
+                  }
+                }
+              }
+            });
+            
+            res.json(orderWithItems);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
+      case '/images':
+        if (req.method === 'GET') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
+            const productId = searchParams.get('productId');
+            
+            if (productId) {
+              const images = await prisma.image.findMany({
+                where: { productID: productId },
+                orderBy: { createdAt: 'desc' }
+              });
+              res.json(images);
+            } else {
+              res.status(400).json({ error: 'Product ID is required' });
+            }
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else if (req.method === 'POST') {
+          const { PrismaClient } = require('@prisma/client');
+          const prisma = new PrismaClient();
+          try {
+            const { productID, image } = req.body;
+            
+            const imageRecord = await prisma.image.create({
+              data: {
+                productID,
+                image
+              }
+            });
+            
+            res.json(imageRecord);
+          } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+          } finally {
+            await prisma.$disconnect();
+          }
+        } else {
+          res.status(405).json({ error: 'Method not allowed' });
+        }
+        break;
+
       default:
         res.status(404).json({ error: 'Endpoint not found', pathname, endpoint });
     }
