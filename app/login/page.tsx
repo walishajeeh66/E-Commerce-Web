@@ -1,7 +1,7 @@
 "use client";
 import { CustomButton, SectionTitle } from "@/components";
 import { isValidEmailAddressFormat } from "@/lib/utils";
-import { signIn, useSession, getSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -57,16 +57,7 @@ const LoginPage = () => {
     } else {
       setError("");
       toast.success("Successful login");
-      
-      // Force session refresh and then redirect
-      try {
-        await getSession();
-        router.push("/");
-      } catch (error) {
-        console.error("Session refresh error:", error);
-        // Fallback: redirect anyway
-        router.push("/");
-      }
+      router.push("/"); // Simple redirect to home page
     }
   };
 

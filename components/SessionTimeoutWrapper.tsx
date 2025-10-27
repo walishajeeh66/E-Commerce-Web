@@ -1,8 +1,9 @@
 "use client";
 
-import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+// Temporarily disabled to test if session timeout is causing issues
+// import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
 export default function SessionTimeoutWrapper() {
-  useSessionTimeout();
+  // useSessionTimeout();
   return null;
 }

@@ -13,22 +13,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL(callbackUrl, request.url));
     }
     
-    // Return JSON response instead of redirecting to login
-    return NextResponse.json({
-      message: "Signin endpoint",
-      callbackUrl: callbackUrl,
-      providers: [
-        {
-          id: "credentials",
-          name: "Credentials",
-          type: "credentials"
-        }
-      ]
-    });
+    // Redirect to login page if not authenticated
+    return NextResponse.redirect(new URL('/login', request.url));
   } catch (error) {
-    return NextResponse.json(
-      { error: "Signin error" },
-      { status: 500 }
-    );
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }

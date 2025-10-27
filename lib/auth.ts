@@ -100,25 +100,18 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user }: { token: any; user: any }) {
-      console.log("JWT callback - user:", user);
       if (user) {
         token.role = user.role;
         token.id = user.id;
         token.iat = Math.floor(Date.now() / 1000);
-        console.log("JWT token updated:", { role: token.role, id: token.id });
       }
-      console.log("JWT token:", token);
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
-      console.log("Session callback - token:", token);
-      console.log("Session callback - session:", session);
       if (token) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
-        console.log("Session updated with role:", token.role);
       }
-      console.log("Final session:", session);
       return session;
     },
   },
