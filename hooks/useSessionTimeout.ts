@@ -3,8 +3,8 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useRef } from "react";
 
-// Production timeout: 15 minutes
-const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+// Production timeout: 24 hours (matching NextAuth config)
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export function useSessionTimeout() {
   const { data: session, status } = useSession();
