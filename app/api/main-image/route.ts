@@ -15,11 +15,15 @@ export async function POST(request: NextRequest) {
     const bytes = Buffer.from(await file.arrayBuffer());
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const uploadDir = path.join(process.cwd(), 'public');
+    await fs.mkdir(uploadDir, { recursive: true });
     const filePath = path.join(uploadDir, safeName);
 
     await fs.writeFile(filePath, bytes);
 
-    return NextResponse.json({ filename: safeName, path: `/${safeName}` });
+    // Invalidate any CDN cache by setting cache-control headers
+    const res = NextResponse.json({ filename: safeName, path: `/${safeName}` });
+    res.headers.set('Cache-Control', 'no-store');
+    return res;
   } catch (error) {
     console.error('Main image upload error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
