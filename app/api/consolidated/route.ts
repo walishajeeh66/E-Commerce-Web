@@ -6,12 +6,14 @@ export async function GET(request: NextRequest) {
 
   try {
     switch (endpoint) {
-      case 'hero':
+      case 'hero': {
+        // Pick an existing public image to avoid 404
         return NextResponse.json({
           title: "Welcome to Electronic Zone",
           subtitle: "Your premier destination for electronics and technology",
-          image: "/hero-banner.jpg"
+          image: "/slider image 1.webp"
         });
+      }
 
       case 'health':
         return NextResponse.json({ 
@@ -19,7 +21,7 @@ export async function GET(request: NextRequest) {
           timestamp: new Date().toISOString() 
         });
 
-      case 'stats':
+      case 'stats': {
         return NextResponse.json({
           totalOrders: 0,
           pendingOrders: 0,
@@ -30,6 +32,7 @@ export async function GET(request: NextRequest) {
           visitorsToday: 0,
           totalProducts: 0
         });
+      }
 
       default:
         return NextResponse.json({ 

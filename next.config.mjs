@@ -33,6 +33,12 @@ const nextConfig = {
         },
       ];
     },
+    async rewrites() {
+      return [
+        { source: '/hero-banner.jpg', destination: '/slider image 1.webp' },
+        { source: '/icons/default.png', destination: '/randomuser.jpg' },
+      ];
+    },
 };
 
 export default nextConfig;

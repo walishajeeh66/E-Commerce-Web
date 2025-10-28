@@ -36,7 +36,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, lastname, phone, email, company, adress, apartment, postalCode, city, country, orderNotice, total, products } = await request.json();
+    const {
+      name,
+      lastname,
+      phone,
+      email,
+      company,
+      adress,
+      apartment,
+      postalCode,
+      city,
+      country,
+      orderNotice,
+      total,
+      products
+    } = await request.json();
+
+    const items = Array.isArray(products) ? products : [];
     
     // Create order
     const order = await prisma.customer_order.create({
@@ -59,15 +75,18 @@ export async function POST(request: NextRequest) {
     
     // Create order items
     const orderItems = await Promise.all(
-      products.map((item: any) =>
-        prisma.customer_order_product.create({
+      items.map((item: any) => {
+        if (!item || !item.productId || typeof item.quantity !== 'number') {
+          throw new Error('Invalid order item format');
+        }
+        return prisma.customer_order_product.create({
           data: {
             customerOrderId: order.id,
             productId: item.productId,
             quantity: item.quantity
           }
-        })
-      )
+        });
+      })
     );
     
     // Get order with items
