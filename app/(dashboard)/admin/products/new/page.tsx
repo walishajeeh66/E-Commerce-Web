@@ -103,16 +103,17 @@ const AddNewProduct = () => {
     }
   }, []);
 
-  const uploadFile = async (file: any) => {
+  const uploadFile = async (file: File) => {
     const formData = new FormData();
-    formData.append("uploadedFile", file);
+    formData.append("file", file);
 
     try {
-      const response = await apiClient.post("/api/main-image", formData);
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
 
       if (response.ok) {
         const data = await response.json();
-        setProduct((prev:any) => ({ ...prev, mainImage: data?.filename || prev.mainImage }));
+        const url = data.secure_url || data.url;
+        if (url) setProduct((prev:any) => ({ ...prev, mainImage: url }));
       } else {
         console.error("File upload unsuccessfull");
       }
@@ -122,19 +123,20 @@ const AddNewProduct = () => {
   };
 
   const uploadAdditionalImages = async (files: FileList) => {
-    const filenames: string[] = [];
+    const urls: string[] = [];
     for (const file of Array.from(files)) {
       const formData = new FormData();
-      formData.append("uploadedFile", file);
+      formData.append("file", file);
       try {
-        const res = await apiClient.post("/api/main-image", formData);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
         if (res.ok) {
           const data = await res.json();
-          filenames.push(data?.filename);
+          const url = data.secure_url || data.url;
+          if (url) urls.push(url);
         }
       } catch {}
     }
-    return filenames;
+    return urls;
   };
 
   const fetchCategories = useCallback(async () => {
@@ -217,10 +219,10 @@ const AddNewProduct = () => {
           {(product.mainImage || additionalImages.length > 0) && (
             <div className="flex gap-2 mt-2 flex-wrap">
               {product.mainImage && (
-                <Image src={`/${product.mainImage}`} alt="main" width={60} height={60} className="w-auto h-auto" />
+                <Image src={product.mainImage} alt="main" width={60} height={60} className="w-auto h-auto" />
               )}
               {additionalImages.map((img, idx) => (
-                <Image key={idx} src={`/${img}`} alt="uploaded" width={60} height={60} className="w-auto h-auto" />
+                <Image key={idx} src={img} alt="uploaded" width={60} height={60} className="w-auto h-auto" />
               ))}
             </div>
           )}

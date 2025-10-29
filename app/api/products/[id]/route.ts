@@ -25,8 +25,41 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const data = await request.json();
-    const updated = await prisma.product.update({ where: { id }, data });
+    const body = await request.json();
+    // Allowlist fields to prevent accidental nested objects/options leaking into Prisma
+    const updateDataBase: any = {
+      slug: body?.slug,
+      title: body?.title,
+      mainImage: body?.mainImage,
+      price: typeof body?.price === 'number' ? body.price : undefined,
+      rating: typeof body?.rating === 'number' ? body.rating : undefined,
+      description: body?.description,
+      manufacturer: body?.manufacturer,
+      inStock: typeof body?.inStock === 'number' ? body.inStock : undefined,
+      discountedPrice: typeof body?.discountedPrice === 'number' ? body.discountedPrice : undefined,
+    };
+
+    // Remove undefineds
+    Object.keys(updateDataBase).forEach((k) => updateDataBase[k] === undefined && delete updateDataBase[k]);
+
+    // Prefer scalar FKs if supported by current Prisma schema; otherwise fallback to nested connect
+    const wantsCategoryId = typeof body?.categoryId === 'string' && body.categoryId.length > 0;
+    const wantsMerchantId = typeof body?.merchantId === 'string' && body.merchantId.length > 0;
+
+    // First attempt: scalar FKs present in schema
+    let updated;
+    try {
+      const firstAttemptData: any = { ...updateDataBase };
+      if (wantsCategoryId) firstAttemptData.categoryId = body.categoryId;
+      if (wantsMerchantId) firstAttemptData.merchantId = body.merchantId;
+      updated = await prisma.product.update({ where: { id }, data: firstAttemptData });
+    } catch (e: any) {
+      // Fallback: nested connect style when scalar FKs are not accepted by generated client
+      const fallbackData: any = { ...updateDataBase };
+      if (wantsCategoryId) fallbackData.category = { connect: { id: body.categoryId } };
+      if (wantsMerchantId) fallbackData.merchant = { connect: { id: body.merchantId } };
+      updated = await prisma.product.update({ where: { id }, data: fallbackData });
+    }
     return NextResponse.json(updated);
   } catch (error) {
     console.error('Product update API Error:', error);

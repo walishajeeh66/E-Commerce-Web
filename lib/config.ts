@@ -1,8 +1,9 @@
 const config = {
-  // For Vercel deployment, use relative paths for API calls
-  apiBaseUrl: process.env.NODE_ENV === 'production' 
-    ? '' // Empty string for production to avoid double /api
-    : (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'),
+  // Use relative paths to hit Next.js API routes by default in all envs.
+  // If you explicitly want to target another origin (e.g., Express server), set NEXT_PUBLIC_API_BASE_URL.
+  apiBaseUrl: typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_BASE_URL !== undefined
+    ? process.env.NEXT_PUBLIC_API_BASE_URL as string
+    : '',
   nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
 };
 

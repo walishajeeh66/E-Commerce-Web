@@ -11,6 +11,7 @@
 "use client";
 import { nanoid } from "nanoid";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import CustomButton from "./CustomButton";
@@ -80,7 +81,7 @@ const DashboardProductTable = () => {
                           <Image
                             width={48}
                             height={48}
-                            src={product?.mainImage ? `/${product?.mainImage}` : "/product_placeholder.jpg"}
+                            src={normalizeImageSrc(product?.mainImage)}
                             alt={sanitize(product?.title) || "Product image"}
                             className="w-auto h-auto"
                           />

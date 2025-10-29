@@ -12,6 +12,7 @@
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import { revalidatePath } from "next/cache";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
@@ -80,7 +81,7 @@ const WishItem = ({
       <th>
         <div className="w-12 h-12 mx-auto" onClick={() => openProduct(slug)}>
           <Image
-            src={`/${image}`}
+            src={normalizeImageSrc(image)}
             width={200}
             height={200}
             className="w-auto h-auto"

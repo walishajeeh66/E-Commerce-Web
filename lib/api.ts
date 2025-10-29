@@ -30,17 +30,26 @@ export const apiClient = {
   async request(endpoint: string, options: RequestInit = {}) {
     // Construct proper URL for Vercel deployment
     let url: string;
-    if (this.baseUrl) {
-      url = `${this.baseUrl}${endpoint}`;
-    } else {
-      // For Vercel, construct absolute URL
+    const isAbsolute = /^https?:\/\//i.test(endpoint);
+    const isNextApi = endpoint.startsWith('/api/');
+
+    if (isAbsolute) {
+      url = endpoint;
+    } else if (isNextApi) {
+      // Always hit Next.js API on same-origin to avoid pointing to external servers
       if (typeof window !== 'undefined') {
-        // Client-side: use current origin
         url = `${window.location.origin}${endpoint}`;
       } else {
-        // Server-side: construct absolute URL using environment variables
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+        url = `${baseUrl}${endpoint}`;
+      }
+    } else if (this.baseUrl) {
+      url = `${this.baseUrl}${endpoint}`;
+    } else {
+      if (typeof window !== 'undefined') {
+        url = `${window.location.origin}${endpoint}`;
+      } else {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
         url = `${baseUrl}${endpoint}`;
       }
     }

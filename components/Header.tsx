@@ -143,7 +143,6 @@ const Header = () => {
             <span className="text-2xl font-extrabold tracking-wide" style={{color:'#1E396E'}}>Technology <span style={{color:'#111'}}>Zone</span></span>
           </Link>
           <div className="flex gap-x-5 items-center">
-            <NotificationBell />
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="w-10">
                 <Image

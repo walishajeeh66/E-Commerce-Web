@@ -14,13 +14,13 @@ const DashboardNewCategoryPage = () => {
 
   const uploadIcon = async (file: File) => {
     const formData = new FormData();
-    formData.append("uploadedFile", file);
+    formData.append("file", file);
 
     try {
-      const response = await apiClient.post("/api/main-image", formData);
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
       if (response.ok) {
         const data = await response.json();
-        setCategoryInput((prev) => ({ ...prev, icon: data?.filename || "" }));
+        setCategoryInput((prev) => ({ ...prev, icon: data?.secure_url || data?.url || "" }));
         toast.success("Icon uploaded");
       } else {
         toast.error("Icon upload failed");
@@ -98,7 +98,7 @@ const DashboardNewCategoryPage = () => {
             <div className="mt-3">
               <span className="text-sm text-gray-600">Uploaded:</span>
               <div className="mt-1">
-                <Image src={`/${categoryInput.icon}`} alt="icon preview" width={48} height={48} />
+                <Image src={categoryInput.icon} alt="icon preview" width={48} height={48} />
               </div>
             </div>
           )}

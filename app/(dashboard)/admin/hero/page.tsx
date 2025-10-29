@@ -27,12 +27,12 @@ const AdminHeroPage = () => {
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();
-    formData.append("uploadedFile", file);
+    formData.append("file", file);
     try {
-      const res = await apiClient.post("/api/main-image", formData);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      setForm((prev) => ({ ...prev, image: data?.filename }));
+      setForm((prev) => ({ ...prev, image: data?.secure_url || data?.url }));
       toast.success("Image uploaded");
     } catch {
       toast.error("Failed to upload image");
@@ -62,7 +62,7 @@ const AdminHeroPage = () => {
             <div className="label"><span className="label-text">Hero Image</span></div>
             <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-sm" onChange={(e:any)=>{const f=e.target.files?.[0]; if(f) uploadImage(f);}} />
           </label>
-          {form.image && <Image src={`/${form.image}`} alt="hero" width={140} height={140} className="mt-2 w-auto h-auto" />}
+          {form.image && <Image src={form.image} alt="hero" width={140} height={140} className="mt-2 w-auto h-auto" />}
         </div>
         <div>
           <label className="form-control w-full max-w-sm">

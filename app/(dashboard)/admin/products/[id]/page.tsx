@@ -64,12 +64,7 @@ const DashboardProductDetails = ({
       return;
     }
 
-    const requestOptions = {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(product),
-    };
-    apiClient.put(`/api/products/${id}`, requestOptions)
+    apiClient.put(`/api/products/${id}`, product)
       .then((response) => {
         if (response.status === 200) {
           return response.json();
@@ -84,15 +79,17 @@ const DashboardProductDetails = ({
   };
 
   // functionality for uploading main image file
-  const uploadFile = async (file: any) => {
+  const uploadFile = async (file: File) => {
     const formData = new FormData();
-    formData.append("uploadedFile", file);
+    formData.append("file", file);
 
     try {
-      const response = await apiClient.post("/api/main-image", formData);
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
 
       if (response.ok) {
         const data = await response.json();
+        const url = data.secure_url || data.url;
+        if (url) setProduct({ ...product!, mainImage: url });
       } else {
         toast.error("File upload unsuccessful.");
       }
@@ -272,13 +269,12 @@ const DashboardProductDetails = ({
 
               if (selectedFile) {
                 uploadFile(selectedFile);
-                setProduct({ ...product!, mainImage: selectedFile.name });
               }
             }}
           />
           {product?.mainImage && (
             <Image
-              src={`/` + product?.mainImage}
+              src={product?.mainImage}
               alt={product?.title}
               className="w-auto h-auto mt-2"
               width={100}
@@ -292,7 +288,7 @@ const DashboardProductDetails = ({
           {otherImages &&
             otherImages.map((image) => (
               <Image
-                src={`/${image.image}`}
+                src={image.image}
                 key={nanoid()}
                 alt="product image"
                 width={100}

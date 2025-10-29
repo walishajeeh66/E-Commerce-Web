@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 interface GalleryProps {
@@ -9,8 +10,8 @@ interface GalleryProps {
 
 const ProductGallery: React.FC<GalleryProps> = ({ mainImage, images }) => {
   const slides = useMemo(() => {
-    const extra = (images || []).map((i) => `/${i.image}`);
-    const base = mainImage ? [`/${mainImage}`] : ["/product_placeholder.jpg"];
+    const extra = (images || []).map((i) => normalizeImageSrc(i.image));
+    const base = [normalizeImageSrc(mainImage)];
     return [...base, ...extra];
   }, [mainImage, images]);
 
@@ -57,7 +58,7 @@ const ProductGallery: React.FC<GalleryProps> = ({ mainImage, images }) => {
               className={i + 1 === index ? "rounded-lg ring-2 ring-blue-600 p-1" : "rounded-lg ring-1 ring-gray-200 hover:ring-gray-300 p-1"}
               onClick={() => setIndex(i + 1)}
             >
-              <Image src={`/${imageItem.image}`} width={96} height={96} alt="thumb" className="w-[96px] h-[96px] object-contain" />
+              <Image src={normalizeImageSrc(imageItem.image)} width={96} height={96} alt="thumb" className="w-[96px] h-[96px] object-contain" />
             </button>
           ))}
         </div>

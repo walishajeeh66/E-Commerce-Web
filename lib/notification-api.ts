@@ -25,26 +25,52 @@ export const notificationApi = {
     const queryString = params.toString();
     const endpoint = `/api/notifications/${userId}${queryString ? `?${queryString}` : ''}`;
     
-    const response = await apiClient.get(endpoint);
+    const response = await apiClient.get(endpoint, { cache: 'no-store' });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch notifications: ${response.statusText}`);
     }
-    
-    return response.json();
+
+    const raw = await response.json();
+    // Normalize backend response shapes
+    if (Array.isArray(raw)) {
+      return {
+        notifications: raw,
+        unreadCount: 0,
+        total: raw.length,
+        page: Number(filters.page || 1),
+        totalPages: 1,
+      } as unknown as NotificationResponse;
+    }
+    if (raw && typeof raw === 'object') {
+      if (!raw.notifications && raw.items && Array.isArray(raw.items)) {
+        raw.notifications = raw.items;
+        delete raw.items;
+      }
+      if (typeof raw.totalPages !== 'number' && typeof raw.total === 'number') {
+        const pageSize = Number(filters.limit || 10);
+        raw.totalPages = Math.max(1, Math.ceil(raw.total / pageSize));
+      }
+      return raw as NotificationResponse;
+    }
+    return { notifications: [], unreadCount: 0, total: 0, page: 1, totalPages: 1 } as unknown as NotificationResponse;
   },
 
   /**
    * Get unread notification count for a user
    */
   async getUnreadCount(userId: string): Promise<{ unreadCount: number }> {
-    const response = await apiClient.get(`/api/notifications/${userId}/unread-count`);
+    const response = await apiClient.get(`/api/notifications/${userId}/unread-count`, { cache: 'no-store' });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch unread count: ${response.statusText}`);
     }
     
-    return response.json();
+    const data = await response.json();
+    if (typeof data?.unreadCount === 'number') return { unreadCount: data.unreadCount };
+    if (typeof data?.count === 'number') return { unreadCount: data.count };
+    if (typeof data?.unread === 'number') return { unreadCount: data.unread };
+    return { unreadCount: 0 };
   },
 
   /**

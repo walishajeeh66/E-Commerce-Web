@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       country,
       orderNotice,
       total,
-      products
+      products,
+      userId
     } = await request.json();
 
     const items = Array.isArray(products) ? products : [];
@@ -100,6 +101,31 @@ export async function POST(request: NextRequest) {
         }
       }
     });
+
+    // Create a notification for the user, if they exist
+    try {
+      const targetUserId = typeof userId === 'string' && userId.length > 0
+        ? userId
+        : (await prisma.user.findFirst({ where: { email }, select: { id: true } }))?.id;
+      if (targetUserId) {
+          await prisma.notification.create({
+            data: {
+              userId: targetUserId,
+              title: 'Order Confirmed',
+              message: `Great news! Your order #${order.id} has been confirmed and will be prepared for shipping.`,
+              type: 'ORDER_UPDATE',
+              priority: 'HIGH',
+              metadata: {
+                status: 'confirmed',
+                orderId: order.id,
+                totalAmount: total,
+              },
+            }
+          });
+      }
+    } catch (e) {
+      console.error('Order notification create error:', e);
+    }
     
     return NextResponse.json(orderWithItems);
   } catch (error) {

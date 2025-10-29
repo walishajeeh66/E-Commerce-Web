@@ -25,6 +25,7 @@ const CheckoutPage = () => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
   const { products, total, clearCart } = useProductStore();
   const router = useRouter();
 
@@ -248,7 +249,8 @@ const CheckoutPage = () => {
 
       console.log(" All products added successfully!");
 
-      // Clear form and cart
+      // Clear form and cart (mark completion first to avoid empty-cart toast)
+      setOrderCompleted(true);
       setCheckoutForm({
         name: "",
         lastname: "",
@@ -344,11 +346,11 @@ const CheckoutPage = () => {
   };
 
   useEffect(() => {
-    if (products.length === 0) {
+    if (!isSubmitting && !orderCompleted && products.length === 0) {
       toast.error("You don't have items in your cart");
       router.push("/cart");
     }
-  }, [products.length, router]);
+  }, [isSubmitting, orderCompleted, products.length, router]);
 
   return (
     <div className="bg-white">

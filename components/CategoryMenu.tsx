@@ -11,6 +11,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import CategoryItem from "./CategoryItem";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import { categoryMenuList } from "@/lib/utils";
 import apiClient from "@/lib/api";
 import Heading from "./Heading";
@@ -51,7 +52,7 @@ const CategoryMenu = () => {
               <div key={cat.id} className="shrink-0 snap-start">
                 <div className="w-48 max-sm:w-40 flex flex-col items-center">
                   <CategoryItem title={cat.name} href={`/shop/${cat.name}`}>
-                    <Image src={cat.icon ? `/${cat.icon}` : "/icons/default.png"} width={110} height={110} alt={cat.name} className="w-[110px] h-[110px] object-contain" />
+                    <Image src={normalizeImageSrc(cat.icon || "/icons/default.png")} width={110} height={110} alt={cat.name} className="w-[110px] h-[110px] object-contain" />
                   </CategoryItem>
                 </div>
               </div>

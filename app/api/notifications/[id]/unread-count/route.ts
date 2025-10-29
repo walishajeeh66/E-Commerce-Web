@@ -3,16 +3,16 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await params;
-    if (!userId) {
+    const { id } = await params; // userId
+    if (!id) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
     }
 
     const count = await prisma.notification.count({
-      where: { userId, isRead: false }
+      where: { userId: id, isRead: false }
     });
 
     return NextResponse.json({ unreadCount: count });
@@ -21,5 +21,6 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
 
 

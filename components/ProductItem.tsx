@@ -10,6 +10,7 @@
 // *********************
 
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import React from "react";
 import Link from "next/link";
 import ProductItemRating from "./ProductItemRating";
@@ -33,7 +34,7 @@ const ProductItem = ({
       <div className="relative flex items-center justify-center">
         <Link href={`/product/${product.slug}`} className="block">
           <Image
-            src={product.mainImage ? `/${product.mainImage}` : "/product_placeholder.jpg"}
+            src={normalizeImageSrc(product.mainImage)}
             width={260}
             height={260}
             sizes="(max-width: 640px) 200px, 260px"

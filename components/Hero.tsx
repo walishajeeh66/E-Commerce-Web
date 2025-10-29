@@ -10,6 +10,7 @@
 // *********************
 
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import React, { useEffect, useState } from "react";
 import apiClient from "@/lib/api";
 import Link from "next/link";
@@ -18,7 +19,7 @@ const Hero = () => {
   const [hero, setHero] = useState<any>(null);
   useEffect(() => {
     let mounted = true;
-    apiClient.get('/api/consolidated?endpoint=hero').then(async (res) => {
+    apiClient.get('/api/consolidated/hero').then(async (res) => {
       if (!res.ok) return;
       const data = await res.json();
       if (mounted) setHero(data || null);
@@ -29,7 +30,7 @@ const Hero = () => {
   const heading = hero?.heading || 'THE PRODUCT OF THE FUTURE';
   const description = hero?.description || 'Discover cutting-edge tech tailored for you.';
   const product = hero?.product;
-  const image = (product?.mainImage ? `/${product.mainImage}` : (hero?.image ? `/${hero.image}` : '/watch for banner.png'));
+  const image = normalizeImageSrc(product?.mainImage || hero?.image || '/watch for banner.png');
   const buyUrl = product?.slug ? `/product/${product.slug}` : (hero?.buyNowUrl || '/shop');
   const learnUrl = hero?.learnMoreUrl || '#';
 
