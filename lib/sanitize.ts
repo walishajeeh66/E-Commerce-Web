@@ -42,14 +42,30 @@ export function sanitizeHtml(text: string | null | undefined): string {
   // For client-side, use DOMPurify with limited allowed tags
   if (typeof window !== 'undefined') {
     return DOMPurify.sanitize(text, {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
-      ALLOWED_ATTR: [],
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i', 'ul', 'li', 'h2', 'h3'],
+      ALLOWED_ATTR: ['class'],
       KEEP_CONTENT: true,
       FORBID_TAGS: ['script', 'img', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'link', 'meta', 'style'],
       FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'onreset', 'onselect', 'onkeydown', 'onkeyup', 'onkeypress']
     });
   }
   
-  // For server-side, strip all HTML tags
-  return text.replace(/<[^>]*>/g, '');
+  // For server-side, do a minimal allowlist sanitizer to match client output
+  const allowedTags = new Set(['p','br','strong','em','u','b','i','ul','li','h2','h3']);
+  // 1) Remove forbidden tags entirely with their brackets
+  let sanitized = text.replace(/<\/?(script|img|iframe|object|embed|form|input|button|link|meta|style)[^>]*>/gi, '');
+  // 2) Keep only allowed tags and the class attribute
+  sanitized = sanitized.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (match, tag, attrs) => {
+    const t = String(tag).toLowerCase();
+    if (!allowedTags.has(t)) return '';
+    if (match.startsWith('</')) return `</${t}>`;
+    let cls = '';
+    const m = String(attrs || '').match(/\bclass\s*=\s*("([^"]*)"|'([^']*)')/i);
+    if (m) {
+      const val = m[2] ?? m[3] ?? '';
+      cls = val ? ` class="${val.replace(/"/g, '&quot;')}"` : '';
+    }
+    return `<${t}${cls}>`;
+  });
+  return sanitized;
 }

@@ -34,6 +34,7 @@ const AddNewProduct = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const addProduct = async () => {
     if (
       !product.merchantId ||
@@ -123,6 +124,7 @@ const AddNewProduct = () => {
   };
 
   const uploadAdditionalImages = async (files: FileList) => {
+    setIsUploading(true);
     const urls: string[] = [];
     for (const file of Array.from(files)) {
       const formData = new FormData();
@@ -136,29 +138,22 @@ const AddNewProduct = () => {
         }
       } catch {}
     }
+    setIsUploading(false);
     return urls;
   };
 
   const fetchCategories = useCallback(async () => {
     apiClient.get(`/api/categories`)
-      .then((res) => {
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         setCategories(data);
-        setProduct({
-          merchantId: product.merchantId || "",
-          title: "",
-          price: 0,
-          manufacturer: "",
-          inStock: 1,
-          mainImage: "",
-          description: "",
-          slug: "",
-          categoryId: data[0]?.id,
-        });
+        // Only set default category if not already chosen
+        setProduct((prev) => ({
+          ...prev,
+          categoryId: prev.categoryId || data?.[0]?.id || "",
+        }));
       });
-  }, [product.merchantId]);
+  }, []);
 
   useEffect(() => {
     fetchCategories();
@@ -198,7 +193,7 @@ const AddNewProduct = () => {
         <div className="mt-4">
           <label className="form-control w-full max-w-sm">
             <div className="label">
-              <span className="label-text">Upload images (up to 3)</span>
+              <span className="label-text">Upload images (up to 4)</span>
             </div>
             <input
               type="file"
@@ -208,14 +203,17 @@ const AddNewProduct = () => {
               onChange={async (e: any) => {
                 const files = e.target.files as FileList;
                 if (!files || files.length === 0) return;
-                const selected = Array.from(files).slice(0, 3);
+                const selected = Array.from(files).slice(0, 4);
                 const uploaded = await uploadAdditionalImages(selected as any as FileList);
-                const combined = uploaded.slice(0, 3);
+                const combined = uploaded.slice(0, 4);
                 setAdditionalImages(combined.slice(1));
                 if (combined[0]) setProduct((prev:any) => ({ ...prev, mainImage: combined[0] }));
               }}
             />
           </label>
+          {isUploading && (
+            <div className="mt-2 text-sm">Uploading images, please wait...</div>
+          )}
           {(product.mainImage || additionalImages.length > 0) && (
             <div className="flex gap-2 mt-2 flex-wrap">
               {product.mainImage && (

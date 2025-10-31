@@ -108,10 +108,10 @@ const AddToWishlistBtn = ({ product, slug }: AddToWishlistBtnProps) => {
         const wishlistResponse = await apiClient.get(
           `/api/wishlist/${userData?.id}/${product?.id}`
         );
-        const wishlistData = await wishlistResponse.json();
-        
-        if (wishlistData[0]?.id) {
+        if (wishlistResponse.ok) {
           setIsProductInWishlist(true);
+        } else if (wishlistResponse.status === 404) {
+          setIsProductInWishlist(false);
         } else {
           setIsProductInWishlist(false);
         }

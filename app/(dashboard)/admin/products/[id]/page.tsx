@@ -24,6 +24,7 @@ const DashboardProductDetails = ({
   const [product, setProduct] = useState<Product>();
   const [categories, setCategories] = useState<Category[]>();
   const [otherImages, setOtherImages] = useState<OtherImages[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const router = useRouter();
 
   // functionality for deleting product
@@ -96,6 +97,34 @@ const DashboardProductDetails = ({
     } catch (error) {
       console.error("There was an error while during request sending:", error);
       toast.error("There was an error during request sending");
+    }
+  };
+
+  const uploadAdditionalImages = async (files: FileList, productId: string) => {
+    setIsUploading(true);
+    const urls: string[] = [];
+    try {
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        if (res.ok) {
+          const data = await res.json();
+          const url = data.secure_url || data.url;
+          if (url) urls.push(url);
+        }
+      }
+      for (const url of urls) {
+        try { await apiClient.post('/api/images', { productID: productId, image: url }); } catch {}
+      }
+      // refresh gallery
+      try {
+        const imagesData = await apiClient.get(`/api/images/${productId}`, { cache: "no-store" });
+        const images = await imagesData.json();
+        setOtherImages(images);
+      } catch {}
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -272,6 +301,19 @@ const DashboardProductDetails = ({
               }
             }}
           />
+          <div className="mt-2">
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="file-input file-input-bordered w-full max-w-sm"
+              onChange={async (e: any) => {
+                const files = e.target.files as FileList;
+                if (!files || files.length === 0 || !id) return;
+                uploadAdditionalImages(files, id);
+              }}
+            />
+          </div>
           {product?.mainImage && (
             <Image
               src={product?.mainImage}
@@ -281,6 +323,7 @@ const DashboardProductDetails = ({
               height={100}
             />
           )}
+          {isUploading && (<p className="text-sm mt-2">Uploading images...</p>)}
         </div>
         {/* Main image file upload div - end */}
         {/* Other images file upload div - start */}
@@ -288,7 +331,7 @@ const DashboardProductDetails = ({
           {otherImages &&
             otherImages.map((image) => (
               <Image
-                src={image.image}
+                src={require("@/lib/image").normalizeImageSrc(image.image)}
                 key={nanoid()}
                 alt="product image"
                 width={100}

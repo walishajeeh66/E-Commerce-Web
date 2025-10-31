@@ -30,7 +30,7 @@ const ProductItem = ({
   const isInStock = product.inStock > 0;
 
   return (
-    <div className="group relative w-full max-w-[320px] rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-lg">
+    <div className="group relative w-full max-w-[320px] rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5">
       <div className="relative flex items-center justify-center">
         <Link href={`/product/${product.slug}`} className="block">
           <Image
@@ -60,16 +60,18 @@ const ProductItem = ({
       </div>
 
       <div className="mt-3 space-y-2">
-        <Link
-          href={`/product/${product.slug}`}
-          className={
-            color === "black"
-              ? "line-clamp-2 text-base font-semibold text-gray-900"
-              : "line-clamp-2 text-base font-semibold text-white"
-          }
-        >
-          {sanitize(product.title)}
-        </Link>
+        <div className="min-h-[48px]">
+          <Link
+            href={`/product/${product.slug}`}
+            className={
+              color === "black"
+                ? "line-clamp-2 text-base font-semibold text-gray-900"
+                : "line-clamp-2 text-base font-semibold text-white"
+            }
+          >
+            {sanitize(product.title)}
+          </Link>
+        </div>
 
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-emerald-600">

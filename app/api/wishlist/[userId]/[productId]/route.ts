@@ -16,6 +16,21 @@ export async function GET(
   }
 }
 
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ userId: string; productId: string }> }
+) {
+  try {
+    const { userId, productId } = await params;
+    if (!userId || !productId) return NextResponse.json({ error: 'userId and productId are required' }, { status: 400 });
+    await prisma.wishlist.deleteMany({ where: { userId, productId } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('Wishlist item DELETE Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string; productId: string }> }

@@ -10,7 +10,7 @@
 // *********************
 
 import Image from "next/image";
-import { normalizeImageSrc } from "@/lib/image";
+import { optimizeForHero } from "@/lib/image";
 import React, { useEffect, useState } from "react";
 import apiClient from "@/lib/api";
 import Link from "next/link";
@@ -22,7 +22,19 @@ const Hero = () => {
     apiClient.get('/api/consolidated/hero').then(async (res) => {
       if (!res.ok) return;
       const data = await res.json();
-      if (mounted) setHero(data || null);
+      if (mounted) {
+        setHero(data || null);
+        // If a productId is provided, load that product to build the BUY NOW link
+        if (data?.productId) {
+          try {
+            const prodRes = await apiClient.get(`/api/products/${data.productId}`, { cache: 'no-store' });
+            if (prodRes.ok) {
+              const prod = await prodRes.json();
+              if (mounted) setHero((prev: any) => ({ ...(prev || {}), product: prod }));
+            }
+          } catch {}
+        }
+      }
     }).catch(() => {});
     return () => { mounted = false };
   }, []);
@@ -30,8 +42,8 @@ const Hero = () => {
   const heading = hero?.heading || 'THE PRODUCT OF THE FUTURE';
   const description = hero?.description || 'Discover cutting-edge tech tailored for you.';
   const product = hero?.product;
-  const image = normalizeImageSrc(product?.mainImage || hero?.image || '/watch for banner.png');
-  const buyUrl = product?.slug ? `/product/${product.slug}` : (hero?.buyNowUrl || '/shop');
+  const image = optimizeForHero(hero?.image || '/watch for banner.png');
+  const buyUrl = product?.slug ? `/product/${product.slug}` : (hero?.buyNowUrl || '#');
   const learnUrl = hero?.learnMoreUrl || '#';
 
   return (
@@ -45,13 +57,18 @@ const Hero = () => {
             <Link href={learnUrl} className="btn-secondary px-12 py-3 max-lg:text-xl max-sm:text-lg rounded-md">LEARN MORE</Link>
           </div>
         </div>
-        <Image
-          src={image}
-          width={400}
-          height={400}
-          alt="smart watch"
-          className="max-md:w-[300px] max-md:h-[300px] max-sm:h-[250px] max-sm:w-[250px] w-auto h-auto"
-        />
+        <div className="w-full max-w-[900px] justify-self-end">
+          <div className="relative h-[520px] w-full max-xl:h-[460px] max-lg:h-[400px] max-md:h-[340px] max-sm:h-[260px]">
+          <Image
+            src={image}
+            alt="hero product"
+            fill
+            sizes="(max-width: 1536px) 55vw, 1100px"
+            className="object-contain"
+            priority
+          />
+          </div>
+        </div>
       </div>
     </div>
   );

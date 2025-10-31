@@ -2,6 +2,7 @@
 import { SectionTitle } from "@/components";
 import { useProductStore } from "../_zustand/store";
 import Image from "next/image";
+import { normalizeImageSrc } from "@/lib/image";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -356,8 +357,7 @@ const CheckoutPage = () => {
     <div className="bg-white">
       <SectionTitle title="Checkout" path="Home | Cart | Checkout" />
       
-      <div className="hidden h-full w-1/2 bg-white lg:block" aria-hidden="true" />
-      <div className="hidden h-full w-1/2 bg-gray-50 lg:block" aria-hidden="true" />
+      
 
       <main className="relative mx-auto grid max-w-screen-2xl grid-cols-1 gap-x-16 lg:grid-cols-2 lg:px-8 xl:gap-x-48">
         <h1 className="sr-only">Order information</h1>
@@ -379,7 +379,7 @@ const CheckoutPage = () => {
               {products.map((product) => (
                 <li key={product?.id} className="flex items-start space-x-4 py-6">
                   <Image
-                    src={product?.image ? `/${product?.image}` : "/product_placeholder.jpg"}
+                    src={normalizeImageSrc(product?.image)}
                     alt={product?.title}
                     width={80}
                     height={80}
